@@ -1,0 +1,36 @@
+# Claude Code
+.claude/
+plan.md
+
+# Anchor / Solana
+target/
+.anchor/
+test-ledger/
+
+# Node
+node_modules/
+dist/
+.yarn/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+*.swp
+*.swo
+
+# IDEs
+.idea/
+*.iml
+
+.anchor
+.DS_Store
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+
