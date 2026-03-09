@@ -17,3 +17,10 @@ pub struct TokensMinted {
     pub recipient: Pubkey,
     pub amount: u64,
 }
+
+#[event]
+pub struct TokensBurned {
+    pub mint: Pubkey,
+    pub minter: Pubkey,
+    pub amount: u64,
+}
