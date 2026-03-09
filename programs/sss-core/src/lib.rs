@@ -17,4 +17,8 @@ pub mod sss_core {
     pub fn initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
         instructions::initialize::handler(ctx, params)
     }
+
+    pub fn mint_tokens(ctx: Context<MintTokens>, amount: u64) -> Result<()> {
+        instructions::mint_tokens::handler(ctx, amount)
+    }
 }

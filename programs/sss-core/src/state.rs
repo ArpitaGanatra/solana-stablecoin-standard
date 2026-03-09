@@ -18,6 +18,8 @@ pub struct StablecoinConfig {
     pub _reserved: [u8; 128],
 }
 
+#[account]
+#[derive(InitSpace)]
 pub struct MinterInfo {
     pub config: Pubkey,
     pub minter: Pubkey,
