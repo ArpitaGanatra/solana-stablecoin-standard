@@ -1,16 +1,20 @@
 use anchor_lang::prelude::*;
 
+pub mod constants;
+pub mod errors;
+pub mod events;
+pub mod instructions;
+pub mod state;
+
+use instructions::*;
+
 declare_id!("YbMgxHu2yUUSEAw3rCvymGGXebExkKahig1nGCwtDMp");
 
 #[program]
 pub mod sss_core {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn initialize(ctx: Context<Initialize>, params: InitializeParams) -> Result<()> {
+        instructions::initialize::handler(ctx, params)
     }
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}
