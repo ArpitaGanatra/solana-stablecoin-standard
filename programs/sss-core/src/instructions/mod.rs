@@ -5,6 +5,7 @@ pub mod mint_tokens;
 pub mod pause;
 pub mod thaw_account;
 pub mod unpause;
+pub mod update_minter;
 
 #[allow(ambiguous_glob_reexports)]
 pub use burn_tokens::*;
@@ -20,3 +21,5 @@ pub use pause::*;
 pub use thaw_account::*;
 #[allow(ambiguous_glob_reexports)]
 pub use unpause::*;
+#[allow(ambiguous_glob_reexports)]
+pub use update_minter::*;

@@ -39,4 +39,13 @@ pub mod sss_core {
     pub fn unpause(ctx: Context<UnpauseConfig>) -> Result<()> {
         instructions::unpause::handler(ctx)
     }
+
+    pub fn update_minter(
+        ctx: Context<UpdateMinter>,
+        minter_address: Pubkey,
+        quota: u64,
+        active: bool,
+    ) -> Result<()> {
+        instructions::update_minter::handler(ctx, minter_address, quota, active)
+    }
 }

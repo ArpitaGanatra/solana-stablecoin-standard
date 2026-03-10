@@ -50,3 +50,11 @@ pub struct Unpaused {
     pub mint: Pubkey,
     pub pauser: Pubkey,
 }
+
+#[event]
+pub struct UpdatedMinter {
+    pub mint: Pubkey,
+    pub minter_address: Pubkey,
+    pub active: bool,
+    pub quota: u64,
+}
