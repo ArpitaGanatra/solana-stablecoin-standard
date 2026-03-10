@@ -38,3 +38,9 @@ pub struct AccountThawed {
     pub account: Pubkey,
     pub authority: Pubkey,
 }
+
+#[event]
+pub struct Paused {
+    pub mint: Pubkey,
+    pub pauser: Pubkey,
+}

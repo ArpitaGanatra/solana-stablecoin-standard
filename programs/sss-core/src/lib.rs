@@ -32,4 +32,7 @@ pub mod sss_core {
     pub fn thaw_account(ctx: Context<ThawTokenAccount>) -> Result<()> {
         instructions::thaw_account::handler(ctx)
     }
+    pub fn pause(ctx: Context<PauseConfig>) -> Result<()> {
+        instructions::pause::handler(ctx)
+    }
 }
