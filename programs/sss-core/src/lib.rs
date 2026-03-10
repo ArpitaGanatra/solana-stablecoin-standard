@@ -48,4 +48,8 @@ pub mod sss_core {
     ) -> Result<()> {
         instructions::update_minter::handler(ctx, minter_address, quota, active)
     }
+
+    pub fn update_roles(ctx: Context<UpdateRoles>, new_pauser: Pubkey) -> Result<()> {
+        instructions::update_roles::handler(ctx, new_pauser)
+    }
 }

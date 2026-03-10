@@ -6,6 +6,7 @@ pub mod pause;
 pub mod thaw_account;
 pub mod unpause;
 pub mod update_minter;
+pub mod update_roles;
 
 #[allow(ambiguous_glob_reexports)]
 pub use burn_tokens::*;
@@ -23,3 +24,5 @@ pub use thaw_account::*;
 pub use unpause::*;
 #[allow(ambiguous_glob_reexports)]
 pub use update_minter::*;
+#[allow(ambiguous_glob_reexports)]
+pub use update_roles::*;

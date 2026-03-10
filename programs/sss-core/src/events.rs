@@ -58,3 +58,10 @@ pub struct UpdatedMinter {
     pub active: bool,
     pub quota: u64,
 }
+
+#[event]
+pub struct RolesUpdated {
+    pub mint: Pubkey,
+    pub old_pauser: Pubkey,
+    pub new_pauser: Pubkey,
+}
