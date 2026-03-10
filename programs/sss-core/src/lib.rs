@@ -25,4 +25,8 @@ pub mod sss_core {
     pub fn burn_tokens(ctx: Context<BurnTokens>, amount: u64) -> Result<()> {
         instructions::burn_tokens::handler(ctx, amount)
     }
+
+    pub fn freeze_account(ctx: Context<FreezeTokenAccount>) -> Result<()> {
+        instructions::freeze_account::handler(ctx)
+    }
 }

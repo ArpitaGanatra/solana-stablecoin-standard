@@ -24,3 +24,10 @@ pub struct TokensBurned {
     pub minter: Pubkey,
     pub amount: u64,
 }
+
+#[event]
+pub struct AccountFrozen {
+    pub mint: Pubkey,
+    pub account: Pubkey,
+    pub authority: Pubkey,
+}
