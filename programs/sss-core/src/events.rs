@@ -31,3 +31,10 @@ pub struct AccountFrozen {
     pub account: Pubkey,
     pub authority: Pubkey,
 }
+
+#[event]
+pub struct AccountThawed {
+    pub mint: Pubkey,
+    pub account: Pubkey,
+    pub authority: Pubkey,
+}
