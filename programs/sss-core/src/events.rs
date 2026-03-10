@@ -65,3 +65,17 @@ pub struct RolesUpdated {
     pub old_pauser: Pubkey,
     pub new_pauser: Pubkey,
 }
+
+#[event]
+pub struct AuthorityTransferProposed {
+    pub mint: Pubkey,
+    pub current_authority: Pubkey,
+    pub proposed_authority: Pubkey,
+}
+
+#[event]
+pub struct AuthorityTransferAccepted {
+    pub mint: Pubkey,
+    pub old_authority: Pubkey,
+    pub new_authority: Pubkey,
+}

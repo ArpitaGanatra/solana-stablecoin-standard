@@ -52,4 +52,15 @@ pub mod sss_core {
     pub fn update_roles(ctx: Context<UpdateRoles>, new_pauser: Pubkey) -> Result<()> {
         instructions::update_roles::handler(ctx, new_pauser)
     }
+
+    pub fn transfer_authority(
+        ctx: Context<TransferAuthority>,
+        new_authority: Pubkey,
+    ) -> Result<()> {
+        instructions::transfer_authority::handler(ctx, new_authority)
+    }
+
+    pub fn accept_authority(ctx: Context<AcceptAuthority>) -> Result<()> {
+        instructions::accept_authority::handler(ctx)
+    }
 }
