@@ -4,6 +4,7 @@ pub mod initialize;
 pub mod mint_tokens;
 pub mod pause;
 pub mod thaw_account;
+pub mod unpause;
 
 #[allow(ambiguous_glob_reexports)]
 pub use burn_tokens::*;
@@ -17,3 +18,5 @@ pub use mint_tokens::*;
 pub use pause::*;
 #[allow(ambiguous_glob_reexports)]
 pub use thaw_account::*;
+#[allow(ambiguous_glob_reexports)]
+pub use unpause::*;

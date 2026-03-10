@@ -44,3 +44,9 @@ pub struct Paused {
     pub mint: Pubkey,
     pub pauser: Pubkey,
 }
+
+#[event]
+pub struct Unpaused {
+    pub mint: Pubkey,
+    pub pauser: Pubkey,
+}

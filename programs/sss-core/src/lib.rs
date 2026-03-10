@@ -35,4 +35,8 @@ pub mod sss_core {
     pub fn pause(ctx: Context<PauseConfig>) -> Result<()> {
         instructions::pause::handler(ctx)
     }
+
+    pub fn unpause(ctx: Context<UnpauseConfig>) -> Result<()> {
+        instructions::unpause::handler(ctx)
+    }
 }

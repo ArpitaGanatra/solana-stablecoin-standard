@@ -24,4 +24,6 @@ pub enum SssError {
     InvalidAmount,
     #[msg("Arithmetic overflow")]
     Overflow,
+    #[msg("Not paused")]
+    NotPaused,
 }
