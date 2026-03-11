@@ -63,4 +63,8 @@ pub mod sss_core {
     pub fn accept_authority(ctx: Context<AcceptAuthority>) -> Result<()> {
         instructions::accept_authority::handler(ctx)
     }
+
+    pub fn blacklist_address(ctx: Context<BlacklistAddress>, address: Pubkey) -> Result<()> {
+        instructions::blacklist_address::handler(ctx, address)
+    }
 }

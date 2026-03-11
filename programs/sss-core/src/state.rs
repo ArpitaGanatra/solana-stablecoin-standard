@@ -28,3 +28,11 @@ pub struct MinterInfo {
     pub active: bool,
     pub bump: u8,
 }
+
+#[account]
+#[derive(InitSpace)]
+pub struct BlacklistEntry {
+    pub config: Pubkey,
+    pub address: Pubkey,
+    pub bump: u8,
+}

@@ -79,3 +79,9 @@ pub struct AuthorityTransferAccepted {
     pub old_authority: Pubkey,
     pub new_authority: Pubkey,
 }
+
+#[event]
+pub struct AddedToBlacklist {
+    pub mint: Pubkey,
+    pub address: Pubkey,
+}

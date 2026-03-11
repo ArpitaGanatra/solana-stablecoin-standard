@@ -26,4 +26,6 @@ pub enum SssError {
     Overflow,
     #[msg("Not paused")]
     NotPaused,
+    #[msg("Compliance module not enabled")]
+    ComplianceNotEnabled,
 }

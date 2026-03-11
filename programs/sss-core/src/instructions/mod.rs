@@ -1,4 +1,5 @@
 pub mod accept_authority;
+pub mod blacklist_address;
 pub mod burn_tokens;
 pub mod freeze_account;
 pub mod initialize;
@@ -12,6 +13,8 @@ pub mod update_roles;
 
 #[allow(ambiguous_glob_reexports)]
 pub use accept_authority::*;
+#[allow(ambiguous_glob_reexports)]
+pub use blacklist_address::*;
 #[allow(ambiguous_glob_reexports)]
 pub use burn_tokens::*;
 #[allow(ambiguous_glob_reexports)]
