@@ -85,3 +85,9 @@ pub struct AddedToBlacklist {
     pub mint: Pubkey,
     pub address: Pubkey,
 }
+
+#[event]
+pub struct RemovedFromBlacklist {
+    pub mint: Pubkey,
+    pub address: Pubkey,
+}

@@ -67,4 +67,8 @@ pub mod sss_core {
     pub fn blacklist_address(ctx: Context<BlacklistAddress>, address: Pubkey) -> Result<()> {
         instructions::blacklist_address::handler(ctx, address)
     }
+
+    pub fn remove_from_blacklist(ctx: Context<RemoveFromBlacklist>, address: Pubkey) -> Result<()> {
+        instructions::remove_from_blacklist::handler(ctx, address)
+    }
 }
