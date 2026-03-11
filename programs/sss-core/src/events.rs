@@ -91,3 +91,11 @@ pub struct RemovedFromBlacklist {
     pub mint: Pubkey,
     pub address: Pubkey,
 }
+
+#[event]
+pub struct TokensSeized {
+    pub mint: Pubkey,
+    pub from: Pubkey,
+    pub treasury: Pubkey,
+    pub amount: u64,
+}

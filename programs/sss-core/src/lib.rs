@@ -71,4 +71,8 @@ pub mod sss_core {
     pub fn remove_from_blacklist(ctx: Context<RemoveFromBlacklist>, address: Pubkey) -> Result<()> {
         instructions::remove_from_blacklist::handler(ctx, address)
     }
+
+    pub fn seize(ctx: Context<SeizeTokens>, amount: u64) -> Result<()> {
+        instructions::seize::handler(ctx, amount)
+    }
 }

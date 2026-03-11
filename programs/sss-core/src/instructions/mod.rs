@@ -6,6 +6,7 @@ pub mod initialize;
 pub mod mint_tokens;
 pub mod pause;
 pub mod remove_from_blacklist;
+pub mod seize;
 pub mod thaw_account;
 pub mod transfer_authority;
 pub mod unpause;
@@ -28,6 +29,8 @@ pub use mint_tokens::*;
 pub use pause::*;
 #[allow(ambiguous_glob_reexports)]
 pub use remove_from_blacklist::*;
+#[allow(ambiguous_glob_reexports)]
+pub use seize::*;
 #[allow(ambiguous_glob_reexports)]
 pub use thaw_account::*;
 #[allow(ambiguous_glob_reexports)]
