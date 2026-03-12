@@ -6,6 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
+sss-transfer-hook = "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9"
 sss_core = "YbMgxHu2yUUSEAw3rCvymGGXebExkKahig1nGCwtDMp"
 
 [registry]
