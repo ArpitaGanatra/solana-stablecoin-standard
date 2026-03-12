@@ -65,6 +65,10 @@ impl FuzzTest {
             symbol: String::new(),
             uri: String::new(),
             additional_metadata: vec![],
+            enable_permanent_delegate: false,
+            enable_transfer_hook: false,
+            default_account_frozen: false,
+            transfer_hook_program_id: None,
         };
 
         let init_ix = sss_core::InitializeInstruction::data(
@@ -81,22 +85,22 @@ impl FuzzTest {
         assert!(init_result.is_success(), "Initialize failed: {}", init_result.logs());
 
         // ---- 2. Set up a minter with quota ----
-        let update_minter_ix = sss_core::UpdateMinterInstruction::data(
-            sss_core::UpdateMinterInstructionData::new(
+        let add_minter_ix = sss_core::AddMinterInstruction::data(
+            sss_core::AddMinterInstructionData::new(
                 minter_key,
                 1_000_000_000, // 1000 tokens (6 decimals)
-                true,
+                false,         // not unlimited
             ),
         )
-        .accounts(sss_core::UpdateMinterInstructionAccounts::new(
+        .accounts(sss_core::AddMinterInstructionAccounts::new(
             authority_key,
             config_pda,
             minter_info_pda,
         ))
         .instruction();
 
-        let minter_result = self.trident.process_transaction(&[update_minter_ix], Some("update_minter"));
-        assert!(minter_result.is_success(), "Update minter failed: {}", minter_result.logs());
+        let minter_result = self.trident.process_transaction(&[add_minter_ix], Some("add_minter"));
+        assert!(minter_result.is_success(), "Add minter failed: {}", minter_result.logs());
     }
 
     // ---- Flow 1: Pause / Unpause ----
@@ -142,7 +146,7 @@ impl FuzzTest {
             let random_quota: u64 = self.trident.random_from_range(0..10_000_000_000u64);
 
             let ix = sss_core::UpdateMinterInstruction::data(
-                sss_core::UpdateMinterInstructionData::new(minter, random_quota, true),
+                sss_core::UpdateMinterInstructionData::new(minter, random_quota, true, false),
             )
             .accounts(sss_core::UpdateMinterInstructionAccounts::new(
                 authority,
@@ -166,7 +170,13 @@ impl FuzzTest {
             (authority_key, config_key, new_pauser)
         {
             let ix = sss_core::UpdateRolesInstruction::data(
-                sss_core::UpdateRolesInstructionData::new(pauser),
+                sss_core::UpdateRolesInstructionData::new(
+                    Some(pauser),
+                    None,
+                    None, // new_freezer
+                    None,
+                    None,
+                ),
             )
             .accounts(sss_core::UpdateRolesInstructionAccounts::new(authority, config))
             .instruction();
@@ -242,7 +252,7 @@ impl FuzzTest {
             self.trident.airdrop(&random_guy, LAMPORTS_PER_SOL);
 
             let ix = sss_core::UpdateMinterInstruction::data(
-                sss_core::UpdateMinterInstructionData::new(minter, 999_999, true),
+                sss_core::UpdateMinterInstructionData::new(minter, 999_999, true, false),
             )
             .accounts(sss_core::UpdateMinterInstructionAccounts::new(
                 random_guy,

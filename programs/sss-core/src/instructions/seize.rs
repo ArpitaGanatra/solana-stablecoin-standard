@@ -8,13 +8,12 @@ use crate::state::StablecoinConfig;
 
 #[derive(Accounts)]
 pub struct SeizeTokens<'info> {
-    pub authority: Signer<'info>,
+    pub seizer: Signer<'info>,
 
     #[account(
         seeds = [CONFIG_SEED, config.mint.as_ref()],
         bump = config.bump,
-        has_one = authority @ SssError::InvalidAuthority,
-        constraint = !config.is_paused @ SssError::Paused,
+        has_one = seizer @ SssError::Unauthorized,
         constraint = config.enable_permanent_delegate @ SssError::ComplianceNotEnabled,
     )]
     pub config: Account<'info, StablecoinConfig>,

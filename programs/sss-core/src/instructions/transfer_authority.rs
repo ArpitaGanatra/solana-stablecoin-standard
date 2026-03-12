@@ -20,6 +20,11 @@ pub struct TransferAuthority<'info> {
 }
 
 pub fn handler(ctx: Context<TransferAuthority>, new_authority: Pubkey) -> Result<()> {
+    require!(
+        new_authority != ctx.accounts.authority.key(),
+        SssError::InvalidAuthority
+    );
+
     ctx.accounts.config.pending_authority = Some(new_authority);
 
     emit!(AuthorityTransferProposed {

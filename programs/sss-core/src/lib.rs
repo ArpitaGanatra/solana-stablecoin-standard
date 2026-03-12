@@ -45,12 +45,13 @@ pub mod sss_core {
         minter_address: Pubkey,
         quota: u64,
         active: bool,
+        unlimited: bool,
     ) -> Result<()> {
-        instructions::update_minter::handler(ctx, minter_address, quota, active)
+        instructions::update_minter::handler(ctx, minter_address, quota, active, unlimited)
     }
 
-    pub fn update_roles(ctx: Context<UpdateRoles>, new_pauser: Pubkey) -> Result<()> {
-        instructions::update_roles::handler(ctx, new_pauser)
+    pub fn update_roles(ctx: Context<UpdateRoles>, params: UpdateRolesParams) -> Result<()> {
+        instructions::update_roles::handler(ctx, params)
     }
 
     pub fn transfer_authority(
@@ -74,5 +75,22 @@ pub mod sss_core {
 
     pub fn seize(ctx: Context<SeizeTokens>, amount: u64) -> Result<()> {
         instructions::seize::handler(ctx, amount)
+    }
+
+    pub fn add_minter(
+        ctx: Context<AddMinter>,
+        minter_address: Pubkey,
+        quota: u64,
+        unlimited: bool,
+    ) -> Result<()> {
+        instructions::add_minter::handler(ctx, minter_address, quota, unlimited)
+    }
+
+    pub fn remove_minter(ctx: Context<RemoveMinter>, minter_address: Pubkey) -> Result<()> {
+        instructions::remove_minter::handler(ctx, minter_address)
+    }
+
+    pub fn cancel_authority_transfer(ctx: Context<CancelAuthorityTransfer>) -> Result<()> {
+        instructions::cancel_authority_transfer::handler(ctx)
     }
 }

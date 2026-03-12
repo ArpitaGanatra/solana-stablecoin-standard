@@ -1,11 +1,14 @@
 pub mod accept_authority;
+pub mod add_minter;
 pub mod blacklist_address;
 pub mod burn_tokens;
+pub mod cancel_authority_transfer;
 pub mod freeze_account;
 pub mod initialize;
 pub mod mint_tokens;
 pub mod pause;
 pub mod remove_from_blacklist;
+pub mod remove_minter;
 pub mod seize;
 pub mod thaw_account;
 pub mod transfer_authority;
@@ -16,9 +19,13 @@ pub mod update_roles;
 #[allow(ambiguous_glob_reexports)]
 pub use accept_authority::*;
 #[allow(ambiguous_glob_reexports)]
+pub use add_minter::*;
+#[allow(ambiguous_glob_reexports)]
 pub use blacklist_address::*;
 #[allow(ambiguous_glob_reexports)]
 pub use burn_tokens::*;
+#[allow(ambiguous_glob_reexports)]
+pub use cancel_authority_transfer::*;
 #[allow(ambiguous_glob_reexports)]
 pub use freeze_account::*;
 #[allow(ambiguous_glob_reexports)]
@@ -29,6 +36,8 @@ pub use mint_tokens::*;
 pub use pause::*;
 #[allow(ambiguous_glob_reexports)]
 pub use remove_from_blacklist::*;
+#[allow(ambiguous_glob_reexports)]
+pub use remove_minter::*;
 #[allow(ambiguous_glob_reexports)]
 pub use seize::*;
 #[allow(ambiguous_glob_reexports)]

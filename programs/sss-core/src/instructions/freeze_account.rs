@@ -8,12 +8,12 @@ use crate::state::StablecoinConfig;
 
 #[derive(Accounts)]
 pub struct FreezeTokenAccount<'info> {
-    pub authority: Signer<'info>,
+    pub freezer: Signer<'info>,
 
     #[account(
-        seeds= [CONFIG_SEED, config.mint.as_ref()],
-        bump= config.bump,
-        has_one= authority @ SssError::InvalidAuthority,
+        seeds = [CONFIG_SEED, config.mint.as_ref()],
+        bump = config.bump,
+        has_one = freezer @ SssError::Unauthorized,
         constraint = !config.is_paused @ SssError::Paused,
     )]
     pub config: Account<'info, StablecoinConfig>,
@@ -52,7 +52,7 @@ pub fn handler(ctx: Context<FreezeTokenAccount>) -> Result<()> {
     emit!(AccountFrozen {
         mint: mint_key,
         account: ctx.accounts.token_account.key(),
-        authority: ctx.accounts.authority.key(),
+        authority: ctx.accounts.freezer.key(),
     });
 
     Ok(())

@@ -28,4 +28,12 @@ pub enum SssError {
     NotPaused,
     #[msg("Compliance module not enabled")]
     ComplianceNotEnabled,
+    #[msg("Transfer hook program ID required when transfer hook is enabled")]
+    TransferHookProgramRequired,
+    #[msg("Role address cannot be the zero/default pubkey")]
+    ZeroAddress,
+    #[msg("No pending authority transfer to cancel")]
+    NoPendingAuthority,
+    #[msg("Quota must be 0 when unlimited is true")]
+    InvalidQuotaForUnlimited,
 }

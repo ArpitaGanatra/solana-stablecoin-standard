@@ -2,15 +2,17 @@ use anchor_lang::prelude::*;
 
 use crate::constants::*;
 use crate::errors::SssError;
-use crate::events::UpdatedMinter;
+use crate::events::MinterRemoved;
 use crate::state::{MinterInfo, StablecoinConfig};
 
 #[derive(Accounts)]
 #[instruction(minter_address: Pubkey)]
-pub struct UpdateMinter<'info> {
+pub struct RemoveMinter<'info> {
+    #[account(mut)]
     pub authority: Signer<'info>,
 
     #[account(
+        mut,
         seeds = [CONFIG_SEED, config.mint.as_ref()],
         bump = config.bump,
         has_one = authority @ SssError::InvalidAuthority,
@@ -20,6 +22,7 @@ pub struct UpdateMinter<'info> {
 
     #[account(
         mut,
+        close = authority,
         seeds = [MINTER_SEED, config.key().as_ref(), minter_address.as_ref()],
         bump = minter_info.bump,
         has_one = config @ SssError::InvalidAuthority,
@@ -27,27 +30,17 @@ pub struct UpdateMinter<'info> {
     pub minter_info: Account<'info, MinterInfo>,
 }
 
-pub fn handler(
-    ctx: Context<UpdateMinter>,
-    minter_address: Pubkey,
-    quota: u64,
-    active: bool,
-    unlimited: bool,
-) -> Result<()> {
-    if unlimited {
-        require!(quota == 0, SssError::InvalidQuotaForUnlimited);
-    }
+pub fn handler(ctx: Context<RemoveMinter>, minter_address: Pubkey) -> Result<()> {
+    ctx.accounts.config.total_minters = ctx
+        .accounts
+        .config
+        .total_minters
+        .checked_sub(1)
+        .ok_or(SssError::Overflow)?;
 
-    let minter_info = &mut ctx.accounts.minter_info;
-    minter_info.quota = quota;
-    minter_info.active = active;
-    minter_info.unlimited = unlimited;
-
-    emit!(UpdatedMinter {
+    emit!(MinterRemoved {
         mint: ctx.accounts.config.mint,
         minter_address,
-        quota,
-        active,
     });
 
     Ok(())

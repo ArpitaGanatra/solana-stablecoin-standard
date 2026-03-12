@@ -58,16 +58,15 @@ pub mod sss_transfer_hook {
 fn check_is_transferring(ctx: &Context<TransferHook>) -> Result<()> {
     use anchor_spl::token_2022::spl_token_2022::{
         extension::{
-            transfer_hook::TransferHookAccount, BaseStateWithExtensionsMut,
-            PodStateWithExtensionsMut,
+            transfer_hook::TransferHookAccount, BaseStateWithExtensions, PodStateWithExtensions,
         },
         pod::PodAccount,
     };
 
     let source_info = ctx.accounts.source_token.to_account_info();
-    let mut data = source_info.try_borrow_mut_data()?;
-    let mut account = PodStateWithExtensionsMut::<PodAccount>::unpack(*data)?;
-    let extension = account.get_extension_mut::<TransferHookAccount>()?;
+    let data = source_info.try_borrow_data()?;
+    let account = PodStateWithExtensions::<PodAccount>::unpack(&data)?;
+    let extension = account.get_extension::<TransferHookAccount>()?;
 
     if !bool::from(extension.transferring) {
         return err!(TransferHookError::NotTransferring);
@@ -123,7 +122,11 @@ impl<'info> InitializeExtraAccountMetaList<'info> {
                         bytes: BLACKLIST_SEED.to_vec(),
                     },
                     Seed::AccountKey { index: 6 }, //config PDA
-                    Seed::AccountKey { index: 3 }, //source owner at index 3
+                    Seed::AccountData {
+                        account_index: 0, // source token account
+                        data_index: 32,   // owner field starts at byte 32
+                        length: 32,       // pubkey is 32 bytes
+                    },
                 ],
                 false,
                 false,

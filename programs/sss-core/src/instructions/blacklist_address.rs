@@ -9,20 +9,19 @@ use crate::state::{BlacklistEntry, StablecoinConfig};
 #[instruction(address: Pubkey)]
 pub struct BlacklistAddress<'info> {
     #[account(mut)]
-    pub authority: Signer<'info>,
+    pub blacklister: Signer<'info>,
 
     #[account(
         seeds = [CONFIG_SEED, config.mint.as_ref()],
         bump = config.bump,
-        has_one = authority @ SssError::InvalidAuthority,
-        constraint = !config.is_paused @ SssError::Paused,
+        has_one = blacklister @ SssError::Unauthorized,
         constraint = config.enable_transfer_hook @ SssError::ComplianceNotEnabled
     )]
     pub config: Account<'info, StablecoinConfig>,
 
     #[account(
         init,
-        payer = authority,
+        payer = blacklister,
         space = 8 + BlacklistEntry::INIT_SPACE,
         seeds = [BLACKLIST_SEED, config.key().as_ref(), address.as_ref()],
         bump

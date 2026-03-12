@@ -21,7 +21,7 @@ pub struct TokensMinted {
 #[event]
 pub struct TokensBurned {
     pub mint: Pubkey,
-    pub minter: Pubkey,
+    pub burner: Pubkey,
     pub amount: u64,
 }
 
@@ -64,6 +64,14 @@ pub struct RolesUpdated {
     pub mint: Pubkey,
     pub old_pauser: Pubkey,
     pub new_pauser: Pubkey,
+    pub old_burner: Pubkey,
+    pub new_burner: Pubkey,
+    pub old_freezer: Pubkey,
+    pub new_freezer: Pubkey,
+    pub old_blacklister: Pubkey,
+    pub new_blacklister: Pubkey,
+    pub old_seizer: Pubkey,
+    pub new_seizer: Pubkey,
 }
 
 #[event]
@@ -98,4 +106,25 @@ pub struct TokensSeized {
     pub from: Pubkey,
     pub treasury: Pubkey,
     pub amount: u64,
+}
+
+#[event]
+pub struct MinterAdded {
+    pub mint: Pubkey,
+    pub minter_address: Pubkey,
+    pub quota: u64,
+    pub unlimited: bool,
+}
+
+#[event]
+pub struct MinterRemoved {
+    pub mint: Pubkey,
+    pub minter_address: Pubkey,
+}
+
+#[event]
+pub struct AuthorityTransferCancelled {
+    pub mint: Pubkey,
+    pub authority: Pubkey,
+    pub cancelled_pending: Pubkey,
 }

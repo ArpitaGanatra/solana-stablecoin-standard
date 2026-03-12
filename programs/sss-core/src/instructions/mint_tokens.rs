@@ -44,8 +44,8 @@ pub fn handler(ctx: Context<MintTokens>, amount: u64) -> Result<()> {
 
     let minter_info = &mut ctx.accounts.minter_info;
 
-    //Check quote: if quota is 0, unlimited minting
-    if minter_info.quota > 0 {
+    // Enforce quota unless minter has unlimited flag
+    if !minter_info.unlimited {
         let new_minted = minter_info
             .minted
             .checked_add(amount)
