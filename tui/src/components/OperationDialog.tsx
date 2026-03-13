@@ -12,7 +12,9 @@ export type OperationType =
   | "freeze"
   | "thaw"
   | "pause"
-  | "unpause";
+  | "unpause"
+  | "update-roles"
+  | "transfer-authority";
 
 interface OperationDialogProps {
   type: OperationType;
@@ -49,6 +51,16 @@ const OPERATION_CONFIG: Record<
   },
   pause: { title: "Pause Token", color: "red", fields: [] },
   unpause: { title: "Unpause Token", color: "green", fields: [] },
+  "update-roles": {
+    title: "Update Roles",
+    color: "cyan",
+    fields: ["Role (pauser/burner/freezer/blacklister/seizer)", "New address"],
+  },
+  "transfer-authority": {
+    title: "Transfer Authority",
+    color: "yellow",
+    fields: ["New authority address"],
+  },
 };
 
 export function OperationDialog({
@@ -154,6 +166,24 @@ export function OperationDialog({
         }
         case "unpause": {
           sig = await stablecoin.unpause(keypair.publicKey);
+          break;
+        }
+        case "update-roles": {
+          const role = inputs[0].toLowerCase();
+          const addr = new PublicKey(inputs[1]);
+          const params: any = {};
+          if (role === "pauser") params.pauser = addr;
+          else if (role === "burner") params.burner = addr;
+          else if (role === "freezer") params.freezer = addr;
+          else if (role === "blacklister") params.blacklister = addr;
+          else if (role === "seizer") params.seizer = addr;
+          else throw new Error(`Unknown role: ${role}`);
+          sig = await stablecoin.updateRoles(keypair.publicKey, params);
+          break;
+        }
+        case "transfer-authority": {
+          const newAuth = new PublicKey(inputs[0]);
+          sig = await stablecoin.transferAuthority(keypair.publicKey, newAuth);
           break;
         }
         default:

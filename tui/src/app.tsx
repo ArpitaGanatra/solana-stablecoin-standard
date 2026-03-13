@@ -4,6 +4,7 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Program } from "@coral-xyz/anchor";
 import { useStablecoinState } from "./hooks/useStablecoinState.js";
 import { useEventLog } from "./hooks/useEventLog.js";
+import { useAuditLog } from "./hooks/useAuditLog.js";
 import { Header } from "./components/Header.js";
 import { StatusBar } from "./components/StatusBar.js";
 import { Dashboard } from "./screens/Dashboard.js";
@@ -57,6 +58,7 @@ export function App({
 
   const state = useStablecoinState(program, connection, mintAddress, decimals);
   const { events, listening } = useEventLog(connection, program.programId);
+  const audit = useAuditLog(connection, program.programId);
 
   const isSSS2 =
     state.config?.enableTransferHook ||
@@ -85,6 +87,10 @@ export function App({
       setActiveOperation("thaw");
     } else if (input === "p" || input === "P") {
       setActiveOperation(state.config?.isPaused ? "unpause" : "pause");
+    } else if (input === "o" || input === "O") {
+      setActiveOperation("update-roles");
+    } else if (input === "x" || input === "X") {
+      setActiveOperation("transfer-authority");
     } else if (input === "r" || input === "R") {
       state.refresh();
       setStatusMessage("Refreshing...");
@@ -128,7 +134,7 @@ export function App({
         ))}
         <Box flexGrow={1} />
         <Text dimColor>
-          q:quit r:refresh m:mint b:burn f:freeze t:thaw p:pause
+          q:quit r:refresh m:mint b:burn f:freeze t:thaw p:pause o:roles x:authority
         </Text>
       </Box>
 
@@ -167,7 +173,14 @@ export function App({
           />
         )}
         {activeTab === "events" && (
-          <EventsScreen events={events} listening={listening} />
+          <EventsScreen
+            events={events}
+            listening={listening}
+            auditEntries={audit.entries}
+            auditLoading={audit.loading}
+            auditError={audit.error}
+            onAuditRefresh={audit.refresh}
+          />
         )}
       </Box>
 
