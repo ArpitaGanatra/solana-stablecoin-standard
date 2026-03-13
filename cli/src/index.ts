@@ -16,6 +16,7 @@ import { registerMintersCommand } from "./commands/minters";
 import { registerRolesCommand } from "./commands/roles";
 import { registerHoldersCommand } from "./commands/holders";
 import { registerAuditLogCommand } from "./commands/audit-log";
+import { registerTuiCommand } from "./commands/tui";
 
 const program = new Command();
 
@@ -44,5 +45,8 @@ registerMintersCommand(program);
 registerRolesCommand(program);
 registerHoldersCommand(program);
 registerAuditLogCommand(program);
+
+// Interactive TUI
+registerTuiCommand(program);
 
 program.parse();

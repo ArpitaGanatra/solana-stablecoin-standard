@@ -1,0 +1,62 @@
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { AnchorProvider, Program, Wallet } from "@coral-xyz/anchor";
+import fs from "fs";
+import os from "os";
+import path from "path";
+
+const SSS_CORE_PROGRAM_ID = new PublicKey(
+  process.env.SSS_CORE_PROGRAM_ID ||
+    "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb"
+);
+
+export interface CliConfig {
+  mint: string;
+  decimals: number;
+  preset?: string;
+  network: string;
+  transferHookProgramId?: string;
+}
+
+export function loadCliConfig(): CliConfig {
+  const configPath = path.resolve(process.cwd(), ".sss-token.json");
+  if (!fs.existsSync(configPath)) {
+    throw new Error('No .sss-token.json found. Run "sss-token init" first.');
+  }
+  return JSON.parse(fs.readFileSync(configPath, "utf-8"));
+}
+
+export function loadKeypair(keypairPath?: string): Keypair {
+  const p =
+    keypairPath ||
+    process.env.SSS_KEYPAIR ||
+    path.join(os.homedir(), ".config", "solana", "id.json");
+  const raw = JSON.parse(fs.readFileSync(p, "utf-8"));
+  return Keypair.fromSecretKey(Uint8Array.from(raw));
+}
+
+export function getConnection(network?: string): Connection {
+  return new Connection(
+    network || process.env.SSS_NETWORK || "http://127.0.0.1:8899",
+    "confirmed"
+  );
+}
+
+export function getProvider(
+  connection: Connection,
+  keypair: Keypair
+): AnchorProvider {
+  const wallet = new Wallet(keypair);
+  return new AnchorProvider(connection, wallet, { commitment: "confirmed" });
+}
+
+export async function getCoreProgram(
+  provider: AnchorProvider
+): Promise<Program> {
+  const idl = await Program.fetchIdl(SSS_CORE_PROGRAM_ID, provider);
+  if (!idl) {
+    throw new Error(
+      "Could not fetch IDL for sss-core. Make sure the program is deployed."
+    );
+  }
+  return new Program(idl, provider);
+}
