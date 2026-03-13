@@ -14,13 +14,19 @@ use crate::events::Initialized;
 use crate::state::StablecoinConfig;
 
 #[derive(AnchorDeserialize, AnchorSerialize)]
+pub struct MetadataField {
+    pub key: String,
+    pub value: String,
+}
+
+#[derive(AnchorDeserialize, AnchorSerialize)]
 pub struct InitializeParams {
     pub decimals: u8,
     pub enable_metadata: bool,
     pub name: String,
     pub symbol: String,
     pub uri: String,
-    pub additional_metadata: Vec<(String, String)>,
+    pub additional_metadata: Vec<MetadataField>,
     // SSS-2 compliance flags
     pub enable_permanent_delegate: bool,
     pub enable_transfer_hook: bool,
@@ -102,9 +108,9 @@ pub fn handler(ctx: Context<Initialize>, params: InitializeParams) -> Result<()>
     let total_lamports_space = if params.enable_metadata {
         let mut metadata_size = 92 + params.name.len() + params.symbol.len() + params.uri.len();
 
-        for (key, value) in &params.additional_metadata {
+        for field in &params.additional_metadata {
             metadata_size = metadata_size
-                .checked_add(8 + key.len() + value.len())
+                .checked_add(8 + field.key.len() + field.value.len())
                 .ok_or(SssError::Overflow)?;
         }
         mint_space
@@ -228,14 +234,14 @@ pub fn handler(ctx: Context<Initialize>, params: InitializeParams) -> Result<()>
         )?;
 
         // 5. Write additional metadata fields
-        for (key, value) in &params.additional_metadata {
+        for field in &params.additional_metadata {
             invoke_signed(
                 &metadata_ix::update_field(
                     &spl_token_2022::id(),
                     &mint_key,
                     &config_key,
-                    spl_token_metadata_interface::state::Field::Key(key.clone()),
-                    value.clone(),
+                    spl_token_metadata_interface::state::Field::Key(field.key.clone()),
+                    field.value.clone(),
                 ),
                 &[
                     ctx.accounts.mint.to_account_info(),

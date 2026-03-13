@@ -8,7 +8,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("YbMgxHu2yUUSEAw3rCvymGGXebExkKahig1nGCwtDMp");
+declare_id!("4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb");
 
 #[program]
 pub mod sss_core {
@@ -73,7 +73,7 @@ pub mod sss_core {
         instructions::remove_from_blacklist::handler(ctx, address)
     }
 
-    pub fn seize(ctx: Context<SeizeTokens>, amount: u64) -> Result<()> {
+    pub fn seize<'a>(ctx: Context<'_, '_, 'a, 'a, SeizeTokens<'a>>, amount: u64) -> Result<()> {
         instructions::seize::handler(ctx, amount)
     }
 

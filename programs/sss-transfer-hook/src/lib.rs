@@ -9,7 +9,7 @@ use spl_transfer_hook_interface::instruction::ExecuteInstruction;
 declare_id!("2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9");
 
 // The sss-core program ID — needed for external PDA derivation
-const SSS_CORE_PROGRAM_ID: Pubkey = pubkey!("YbMgxHu2yUUSEAw3rCvymGGXebExkKahig1nGCwtDMp");
+const SSS_CORE_PROGRAM_ID: Pubkey = pubkey!("4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb");
 // Must match the BLACKLIST_SEED and CONFIG_SEED from sss-core
 const BLACKLIST_SEED: &[u8] = b"blacklist_seed";
 const CONFIG_SEED: &[u8] = b"stablecoin_config";
@@ -43,6 +43,12 @@ pub mod sss_transfer_hook {
     #[instruction(discriminator = ExecuteInstruction::SPL_DISCRIMINATOR_SLICE)]
     pub fn transfer_hook(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
         check_is_transferring(&ctx)?;
+
+        // Allow transfers initiated by the config PDA (permanent delegate / seize).
+        // The owner field (index 3) is the authority that signed the transfer.
+        if ctx.accounts.owner.key() == ctx.accounts.config.key() {
+            return Ok(());
+        }
 
         if !ctx.accounts.source_blacklist_entry.data_is_empty() {
             return err!(TransferHookError::Blacklisted);

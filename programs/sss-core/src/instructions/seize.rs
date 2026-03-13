@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_2022::{self, Token2022, TransferChecked};
+use anchor_lang::solana_program::program::invoke_signed;
+use anchor_spl::token_2022::Token2022;
 
 use crate::constants::*;
 use crate::errors::SssError;
@@ -33,25 +34,46 @@ pub struct SeizeTokens<'info> {
     pub token_program: Program<'info, Token2022>,
 }
 
-pub fn handler(ctx: Context<SeizeTokens>, amount: u64) -> Result<()> {
+pub fn handler<'a>(ctx: Context<'_, '_, 'a, 'a, SeizeTokens<'a>>, amount: u64) -> Result<()> {
     require!(amount > 0, SssError::InvalidAmount);
 
     let mint_key = ctx.accounts.config.mint;
     let bump = ctx.accounts.config.bump;
     let signer_seeds: &[&[&[u8]]] = &[&[CONFIG_SEED, mint_key.as_ref(), &[bump]]];
 
-    let cpi_ctx = CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        TransferChecked {
-            from: ctx.accounts.from.to_account_info(),
-            to: ctx.accounts.treasury.to_account_info(),
-            mint: ctx.accounts.mint.to_account_info(),
-            authority: ctx.accounts.config.to_account_info(),
-        },
-        signer_seeds,
-    );
+    // Build transfer_checked instruction manually to include remaining accounts
+    // (anchor-spl's transfer_checked ignores remaining accounts, breaking transfer hooks)
+    let mut ix = spl_token_2022::instruction::transfer_checked(
+        ctx.accounts.token_program.key,
+        ctx.accounts.from.key,
+        ctx.accounts.mint.key,
+        ctx.accounts.treasury.key,
+        &ctx.accounts.config.key(),
+        &[],
+        amount,
+        ctx.accounts.config.decimals,
+    )?;
 
-    token_2022::transfer_checked(cpi_ctx, amount, ctx.accounts.config.decimals)?;
+    // Add remaining accounts (transfer hook extra metas) to the instruction
+    for acc in ctx.remaining_accounts {
+        ix.accounts
+            .push(anchor_lang::solana_program::instruction::AccountMeta {
+                pubkey: *acc.key,
+                is_signer: acc.is_signer,
+                is_writable: acc.is_writable,
+            });
+    }
+
+    // Build account_infos: standard accounts + remaining accounts
+    let mut account_infos = vec![
+        ctx.accounts.from.to_account_info(),
+        ctx.accounts.mint.to_account_info(),
+        ctx.accounts.treasury.to_account_info(),
+        ctx.accounts.config.to_account_info(),
+    ];
+    account_infos.extend_from_slice(ctx.remaining_accounts);
+
+    invoke_signed(&ix, &account_infos, signer_seeds)?;
 
     emit!(TokensSeized {
         mint: mint_key,

@@ -14,8 +14,6 @@ import {
   getAssociatedTokenAddressSync,
   createAssociatedTokenAccountInstruction,
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  createTransferCheckedInstruction,
-  addExtraAccountMetasForExecute,
 } from "@solana/spl-token";
 
 const CONFIG_SEED = Buffer.from("stablecoin_config");
@@ -89,49 +87,34 @@ async function createAta(
   return ata;
 }
 
-// Build remaining accounts needed for transfer_checked on mints with transfer hooks
-// Uses @solana/spl-token to properly resolve extra account metas
-async function getTransferHookRemainingAccounts(
-  connection: anchor.web3.Connection,
+// Build remaining accounts needed for transfer_checked on mints with transfer hooks.
+// These are forwarded through the CPI: sss_core -> Token-2022 -> transfer_hook
+function getTransferHookRemainingAccounts(
   mint: PublicKey,
-  source: PublicKey,
-  destination: PublicKey,
-  owner: PublicKey,
-  amount: number
-): Promise<anchor.web3.AccountMeta[]> {
-  // Build a dummy transfer_checked instruction, then use addExtraAccountMetasForExecute
-  // to resolve the correct extra accounts in the right order
-  const ix = createTransferCheckedInstruction(
-    source,
-    mint,
-    destination,
-    owner,
-    amount,
-    6, // decimals
-    [],
-    TOKEN_2022_PROGRAM_ID
+  config: PublicKey,
+  sourceOwner: PublicKey,
+  destOwner: PublicKey,
+  hookProgramId: PublicKey,
+  coreProgramId: PublicKey
+): anchor.web3.AccountMeta[] {
+  const [extraMetaList] = PublicKey.findProgramAddressSync(
+    [Buffer.from("extra-account-metas"), mint.toBuffer()],
+    hookProgramId
   );
+  const [sourceBlacklist] = findBlacklistPda(config, sourceOwner, coreProgramId);
+  const [destBlacklist] = findBlacklistPda(config, destOwner, coreProgramId);
 
-  // This reads the ExtraAccountMetaList on-chain and resolves all extra accounts
-  await addExtraAccountMetasForExecute(
-    connection,
-    ix,
-    TOKEN_2022_PROGRAM_ID,
-    source,
-    mint,
-    destination,
-    owner,
-    amount,
-  );
-
-  // The extra accounts added by addExtraAccountMetasForExecute are appended
-  // after the standard transfer_checked accounts (source, mint, dest, owner)
-  // Return only the extra accounts (skip the first 4 standard ones)
-  return ix.keys.slice(4).map((key) => ({
-    pubkey: key.pubkey,
-    isSigner: false, // In CPI context, signers are handled by the program
-    isWritable: key.isWritable,
-  }));
+  return [
+    // Extra account meta list (Token-2022 reads this to resolve extra accounts)
+    { pubkey: extraMetaList, isSigner: false, isWritable: false },
+    // Resolved extra metas (in order defined in InitializeExtraAccountMetaList):
+    { pubkey: coreProgramId, isSigner: false, isWritable: false },    // sss-core program
+    { pubkey: config, isSigner: false, isWritable: false },            // config PDA
+    { pubkey: sourceBlacklist, isSigner: false, isWritable: false },   // source blacklist
+    { pubkey: destBlacklist, isSigner: false, isWritable: false },     // dest blacklist
+    // Hook program (must be last — Token-2022 invokes this)
+    { pubkey: hookProgramId, isSigner: false, isWritable: false },
+  ];
 }
 
 describe("sss-core", () => {
@@ -1496,20 +1479,14 @@ describe("sss-core", () => {
       });
 
       it("seizes tokens via permanent delegate", async () => {
-        const remainingAccounts = await getTransferHookRemainingAccounts(
-          connection,
+        const remainingAccounts = getTransferHookRemainingAccounts(
           sss2Mint.publicKey,
-          seizeFromAta,       // source token account
-          treasuryAta,        // destination token account
-          sss2Config,         // owner/authority (config PDA is the permanent delegate)
-          500_000
+          sss2Config,
+          recipientKp.publicKey,   // source token account owner
+          authority.publicKey,      // treasury token account owner
+          hookProgram.programId,
+          program.programId
         );
-
-        console.log("Hook program ID:", hookProgram.programId.toBase58());
-        console.log("Remaining accounts for seize:");
-        for (const acc of remainingAccounts) {
-          console.log(`  ${acc.pubkey.toBase58()} writable=${acc.isWritable} signer=${acc.isSigner}`);
-        }
 
         await program.methods
           .seize(new anchor.BN(500_000))
@@ -1723,13 +1700,13 @@ describe("sss-core", () => {
       );
 
       // 3. Seize tokens from blacklisted account
-      const seizeRemainingAccounts = await getTransferHookRemainingAccounts(
-        connection,
+      const seizeRemainingAccounts = getTransferHookRemainingAccounts(
         sss2Mint.publicKey,
-        integTargetAta,           // source token account
-        treasuryAta,              // destination token account
-        sss2Config,               // owner/authority (config PDA)
-        1_000_000
+        sss2Config,
+        integTarget.publicKey,    // source owner
+        authority.publicKey,       // treasury owner
+        hookProgram.programId,
+        program.programId
       );
 
       await program.methods

@@ -7,7 +7,7 @@ skip-lint = false
 
 [programs.localnet]
 sss-transfer-hook = "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9"
-sss_core = "YbMgxHu2yUUSEAw3rCvymGGXebExkKahig1nGCwtDMp"
+sss_core = "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb"
 
 [registry]
 url = "https://api.apr.dev"
