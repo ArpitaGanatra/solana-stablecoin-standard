@@ -15,3 +15,4 @@ export { buildCancelAuthorityTransferIx } from "./cancelAuthorityTransfer";
 export { buildBlacklistAddressIx } from "./blacklistAddress";
 export { buildRemoveFromBlacklistIx } from "./removeFromBlacklist";
 export { buildSeizeIx } from "./seize";
+export { buildInitializeTransferHookIx } from "./initializeTransferHook";

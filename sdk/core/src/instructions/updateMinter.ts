@@ -1,9 +1,10 @@
 import { Program, BN } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
+import type { SssCore } from "../idl";
 import { findConfigPda, findMinterPda } from "../utils/pda";
 
 export function buildUpdateMinterIx(
-  program: Program,
+  program: Program<SssCore>,
   authority: PublicKey,
   mint: PublicKey,
   minterAddress: PublicKey,
@@ -16,7 +17,7 @@ export function buildUpdateMinterIx(
 
   return program.methods
     .updateMinter(minterAddress, quota, active, unlimited)
-    .accounts({
+    .accountsPartial({
       authority,
       config,
       minterInfo,

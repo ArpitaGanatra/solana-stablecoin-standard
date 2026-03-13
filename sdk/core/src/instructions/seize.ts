@@ -1,10 +1,11 @@
 import { Program, BN } from "@coral-xyz/anchor";
 import { PublicKey, AccountMeta } from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import type { SssCore } from "../idl";
 import { findConfigPda } from "../utils/pda";
 
 export function buildSeizeIx(
-  program: Program,
+  program: Program<SssCore>,
   seizer: PublicKey,
   mint: PublicKey,
   from: PublicKey,
@@ -16,7 +17,7 @@ export function buildSeizeIx(
 
   return program.methods
     .seize(amount)
-    .accounts({
+    .accountsPartial({
       seizer,
       config,
       mint,

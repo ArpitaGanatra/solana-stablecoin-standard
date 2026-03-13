@@ -1,6 +1,7 @@
 import { Program } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import type { SssCore } from "../idl";
 import { findConfigPda } from "../utils/pda";
 
 export interface ThawAccountAccounts {
@@ -10,14 +11,14 @@ export interface ThawAccountAccounts {
 }
 
 export function buildThawAccountIx(
-  program: Program,
+  program: Program<SssCore>,
   accounts: ThawAccountAccounts
 ) {
   const [config] = findConfigPda(accounts.mint, program.programId);
 
   return program.methods
     .thawAccount()
-    .accounts({
+    .accountsPartial({
       freezer: accounts.freezer,
       config,
       mint: accounts.mint,

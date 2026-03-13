@@ -1,10 +1,11 @@
 import { Program } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
+import type { SssCore } from "../idl";
 import { UpdateRolesParams } from "../types";
 import { findConfigPda } from "../utils/pda";
 
 export function buildUpdateRolesIx(
-  program: Program,
+  program: Program<SssCore>,
   authority: PublicKey,
   mint: PublicKey,
   params: UpdateRolesParams
@@ -19,7 +20,7 @@ export function buildUpdateRolesIx(
       newBlacklister: params.blacklister ?? null,
       newSeizer: params.seizer ?? null,
     })
-    .accounts({
+    .accountsPartial({
       authority,
       config,
     });

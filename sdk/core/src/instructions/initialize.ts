@@ -1,6 +1,7 @@
 import { Program } from "@coral-xyz/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import type { SssCore } from "../idl";
 import { InitializeParams, PresetConfig } from "../types";
 import { findConfigPda } from "../utils/pda";
 
@@ -10,7 +11,7 @@ export interface InitializeAccounts {
 }
 
 export function buildInitializeIx(
-  program: Program,
+  program: Program<SssCore>,
   accounts: InitializeAccounts,
   params: InitializeParams,
   preset?: PresetConfig
@@ -37,7 +38,7 @@ export function buildInitializeIx(
 
   return program.methods
     .initialize(ixParams)
-    .accounts({
+    .accountsPartial({
       authority: accounts.authority,
       mint: accounts.mint.publicKey,
       config,

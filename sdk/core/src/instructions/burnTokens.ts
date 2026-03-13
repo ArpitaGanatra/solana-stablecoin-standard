@@ -1,6 +1,7 @@
 import { Program, BN } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import type { SssCore } from "../idl";
 import { findConfigPda } from "../utils/pda";
 
 export interface BurnTokensAccounts {
@@ -10,7 +11,7 @@ export interface BurnTokensAccounts {
 }
 
 export function buildBurnTokensIx(
-  program: Program,
+  program: Program<SssCore>,
   accounts: BurnTokensAccounts,
   amount: BN
 ) {
@@ -18,7 +19,7 @@ export function buildBurnTokensIx(
 
   return program.methods
     .burnTokens(amount)
-    .accounts({
+    .accountsPartial({
       burner: accounts.burner,
       config,
       mint: accounts.mint,
