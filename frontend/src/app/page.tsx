@@ -3,6 +3,7 @@
 import { useStablecoin } from "@/contexts/StablecoinProvider";
 import StatCard from "@/components/StatCard";
 import Card from "@/components/Card";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { config, totalSupply, error, mintAddress } = useStablecoin();
@@ -11,22 +12,26 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 className="text-3xl font-heading font-bold text-text-primary mb-2 tracking-tight">
             Solana Stablecoin Standard
           </h2>
-          <p className="text-muted mb-6">
+          <p className="text-text-secondary mb-8">
             Enter a mint address above to load your stablecoin dashboard
           </p>
           <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto text-left">
-            <div className="bg-card border border-card-border rounded-lg p-4">
-              <p className="text-sm font-medium text-primary mb-1">SSS-1</p>
-              <p className="text-xs text-muted">
+            <div className="bg-bg-card/60 backdrop-blur-sm border border-border-default rounded-xl p-4 transition-all duration-200 hover:border-accent/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.06)]">
+              <p className="text-sm font-heading font-medium text-accent mb-1">
+                SSS-1
+              </p>
+              <p className="text-xs text-text-tertiary">
                 Minimal stablecoin with mint, freeze, and metadata
               </p>
             </div>
-            <div className="bg-card border border-card-border rounded-lg p-4">
-              <p className="text-sm font-medium text-warning mb-1">SSS-2</p>
-              <p className="text-xs text-muted">
+            <div className="bg-bg-card/60 backdrop-blur-sm border border-border-default rounded-xl p-4 transition-all duration-200 hover:border-warning/30 hover:shadow-[0_0_20px_rgba(245,158,11,0.06)]">
+              <p className="text-sm font-heading font-medium text-warning mb-1">
+                SSS-2
+              </p>
+              <p className="text-xs text-text-tertiary">
                 Compliant stablecoin with blacklist, seize, and transfer hooks
               </p>
             </div>
@@ -39,8 +44,8 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="bg-danger/10 border border-danger/30 rounded-lg p-6 max-w-md">
-          <p className="text-danger font-medium">Error</p>
+        <div className="bg-danger/10 border border-danger/30 rounded-xl p-6 max-w-md">
+          <p className="text-danger font-heading font-medium">Error</p>
           <p className="text-sm text-danger/80 mt-1">{error}</p>
         </div>
       </div>
@@ -50,7 +55,7 @@ export default function Dashboard() {
   if (!config) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted">
+        <p className="text-text-secondary">
           Click &quot;Load&quot; to fetch stablecoin data
         </p>
       </div>
@@ -149,15 +154,23 @@ function Row({
   const display =
     value.length > 20 ? value.slice(0, 4) + "..." + value.slice(-4) : value;
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    toast.success("Copied to clipboard", {
+      description: value.slice(0, 16) + "...",
+      duration: 2000,
+    });
+  };
+
   return (
-    <div className="flex items-center justify-between py-1 border-b border-card-border last:border-0">
-      <span className="text-muted">{label}</span>
+    <div className="flex items-center justify-between py-1.5 border-b border-border-subtle last:border-0">
+      <span className="text-text-secondary">{label}</span>
       <div className="flex items-center gap-2">
-        <span className="text-foreground font-mono text-xs">{display}</span>
+        <span className="text-text-primary font-mono text-xs">{display}</span>
         {copy && (
           <button
-            onClick={() => navigator.clipboard.writeText(value)}
-            className="text-muted hover:text-foreground transition-colors"
+            onClick={handleCopy}
+            className="text-text-tertiary hover:text-accent transition-colors"
             title="Copy full address"
           >
             <svg

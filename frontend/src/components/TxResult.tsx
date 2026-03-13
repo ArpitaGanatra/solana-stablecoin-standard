@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
+
 interface TxResultProps {
   signature: string | null;
   error: string | null;
@@ -7,46 +10,45 @@ interface TxResultProps {
 }
 
 export default function TxResult({ signature, error, onClear }: TxResultProps) {
-  if (!signature && !error) return null;
-
   const cluster = process.env.NEXT_PUBLIC_CLUSTER || "devnet";
-  const explorerUrl = signature
-    ? `https://explorer.solana.com/tx/${signature}?cluster=${cluster}`
-    : "";
+  const prevSig = useRef<string | null>(null);
+  const prevError = useRef<string | null>(null);
 
-  return (
-    <div
-      className={`mt-4 p-3 rounded-lg text-sm ${
-        error
-          ? "bg-danger/10 border border-danger/30 text-danger"
-          : "bg-success/10 border border-success/30 text-success"
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          {error ? (
-            <p>{error}</p>
-          ) : (
-            <p>
-              Transaction successful!{" "}
-              <a
-                href={explorerUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                View on Explorer
-              </a>
-            </p>
-          )}
-        </div>
-        <button
-          onClick={onClear}
-          className="text-muted hover:text-foreground ml-3"
-        >
-          x
-        </button>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    if (signature && signature !== prevSig.current) {
+      prevSig.current = signature;
+      const explorerUrl = `https://explorer.solana.com/tx/${signature}?cluster=${cluster}`;
+      toast.success("Transaction confirmed", {
+        description: (
+          <span className="font-mono text-xs">
+            {signature.slice(0, 8)}...{signature.slice(-8)}
+          </span>
+        ),
+        action: {
+          label: "Explorer",
+          onClick: () => window.open(explorerUrl, "_blank"),
+        },
+        duration: 8000,
+        style: {
+          background: "#111111",
+          border: "1px solid rgba(74, 222, 128, 0.2)",
+          boxShadow: "0 0 20px rgba(74, 222, 128, 0.08)",
+        },
+      });
+      onClear();
+    }
+  }, [signature, cluster, onClear]);
+
+  useEffect(() => {
+    if (error && error !== prevError.current) {
+      prevError.current = error;
+      toast.error("Transaction failed", {
+        description: error.length > 120 ? error.slice(0, 120) + "..." : error,
+        duration: 8000,
+      });
+      onClear();
+    }
+  }, [error, onClear]);
+
+  return null;
 }

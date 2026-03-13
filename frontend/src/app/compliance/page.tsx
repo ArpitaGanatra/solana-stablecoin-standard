@@ -38,7 +38,9 @@ export default function CompliancePage() {
   if (!config) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted">Load a stablecoin from the header first</p>
+        <p className="text-text-secondary">
+          Load a stablecoin from the header first
+        </p>
       </div>
     );
   }
@@ -48,7 +50,7 @@ export default function CompliancePage() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <p className="text-warning font-medium mb-2">SSS-2 Only</p>
-          <p className="text-muted text-sm">
+          <p className="text-text-secondary text-sm">
             Compliance features are only available for SSS-2 stablecoins with
             transfer hooks enabled.
           </p>
@@ -194,20 +196,22 @@ export default function CompliancePage() {
         <Card title="Blacklist Management">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-muted mb-1">Address</label>
+              <label className="block text-sm text-text-secondary mb-1">
+                Address
+              </label>
               <input
                 type="text"
                 value={blacklistAddr}
                 onChange={(e) => setBlacklistAddr(e.target.value)}
                 placeholder="Address to blacklist/remove..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={handleBlacklistAdd}
                 disabled={loading || !blacklistAddr}
-                className="bg-danger hover:bg-danger/80 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+                className="bg-danger hover:bg-danger/80 disabled:opacity-50 text-text-primary py-2.5 rounded-lg text-sm font-medium transition-colors"
               >
                 {loading ? "..." : "Add to Blacklist"}
               </button>
@@ -225,7 +229,7 @@ export default function CompliancePage() {
         <Card title="Check Blacklist Status">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 Address to Check
               </label>
               <input
@@ -236,13 +240,13 @@ export default function CompliancePage() {
                   setCheckResult(null);
                 }}
                 placeholder="Check if address is blacklisted..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <button
               onClick={handleCheckBlacklist}
               disabled={!checkAddr}
-              className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-bg-primary py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               Check Status
             </button>
@@ -265,13 +269,13 @@ export default function CompliancePage() {
 
       <Card title="Seize Tokens">
         <div className="space-y-4">
-          <p className="text-sm text-muted">
+          <p className="text-sm text-text-secondary">
             Seize tokens from a blacklisted address using the permanent
             delegate. Tokens are transferred to the specified treasury account.
           </p>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 From Address
               </label>
               <input
@@ -279,11 +283,11 @@ export default function CompliancePage() {
                 value={seizeFrom}
                 onChange={(e) => setSeizeFrom(e.target.value)}
                 placeholder="Blacklisted address..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 Treasury Address
               </label>
               <input
@@ -291,24 +295,26 @@ export default function CompliancePage() {
                 value={seizeTo}
                 onChange={(e) => setSeizeTo(e.target.value)}
                 placeholder="Destination wallet..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <div>
-              <label className="block text-sm text-muted mb-1">Amount</label>
+              <label className="block text-sm text-text-secondary mb-1">
+                Amount
+              </label>
               <input
                 type="number"
                 value={seizeAmount}
                 onChange={(e) => setSeizeAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
           </div>
           <button
             onClick={handleSeize}
             disabled={loading || !seizeFrom || !seizeTo || !seizeAmount}
-            className="bg-danger hover:bg-danger/80 disabled:opacity-50 text-white py-2.5 px-6 rounded-lg text-sm font-medium transition-colors"
+            className="bg-danger hover:bg-danger/80 disabled:opacity-50 text-text-primary py-2.5 px-6 rounded-lg text-sm font-medium transition-colors"
           >
             {loading ? "Processing..." : "Seize Tokens"}
           </button>

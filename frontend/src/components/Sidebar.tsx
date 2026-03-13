@@ -110,10 +110,12 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-card border-r border-card-border min-h-screen p-4 flex flex-col">
+    <aside className="w-64 bg-bg-secondary/80 backdrop-blur-sm border-r border-border-subtle min-h-screen p-4 flex flex-col">
       <div className="mb-8 px-3">
-        <h1 className="text-xl font-bold text-white">SSS Token</h1>
-        <p className="text-xs text-muted mt-1">Stablecoin Standard</p>
+        <h1 className="text-xl font-heading font-bold text-text-primary tracking-tight">
+          SSS Token
+        </h1>
+        <p className="text-xs text-text-tertiary mt-1">Stablecoin Standard</p>
       </div>
 
       <nav className="flex-1 space-y-1">
@@ -123,10 +125,10 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
                 isActive
-                  ? "bg-primary/20 text-primary-hover font-medium"
-                  : "text-muted hover:text-foreground hover:bg-white/5"
+                  ? "bg-accent-muted/60 text-accent font-medium shadow-[0_0_12px_rgba(74,222,128,0.06)]"
+                  : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated"
               }`}
             >
               {ICONS[item.icon]}
@@ -136,10 +138,10 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto pt-4 border-t border-card-border">
-        <div className="px-3 text-xs text-muted">
+      <div className="mt-auto pt-4 border-t border-border-subtle">
+        <div className="px-3 text-xs text-text-tertiary">
           <p>Solana Stablecoin Standard</p>
-          <p className="mt-1">v0.1.0</p>
+          <p className="mt-1 font-mono">v0.1.0</p>
         </div>
       </div>
     </aside>

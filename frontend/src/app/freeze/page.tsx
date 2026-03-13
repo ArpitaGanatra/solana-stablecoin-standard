@@ -33,7 +33,9 @@ export default function FreezePage() {
   if (!config) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted">Load a stablecoin from the header first</p>
+        <p className="text-text-secondary">
+          Load a stablecoin from the header first
+        </p>
       </div>
     );
   }
@@ -146,7 +148,7 @@ export default function FreezePage() {
         <Card title="Freeze / Thaw Account">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 Wallet Address
               </label>
               <input
@@ -154,7 +156,7 @@ export default function FreezePage() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Address to freeze/thaw..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -178,7 +180,7 @@ export default function FreezePage() {
 
         <Card title="Pause / Unpause">
           <div className="space-y-4">
-            <p className="text-sm text-muted">
+            <p className="text-sm text-text-secondary">
               {config.isPaused
                 ? "The stablecoin is currently PAUSED. All transfers are blocked."
                 : "The stablecoin is active. Pausing will block all transfers."}
@@ -198,7 +200,7 @@ export default function FreezePage() {
               className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
                 config.isPaused
                   ? "bg-success hover:bg-success/80 text-black"
-                  : "bg-danger hover:bg-danger/80 text-white"
+                  : "bg-danger hover:bg-danger/80 text-text-primary"
               }`}
             >
               {pauseLoading

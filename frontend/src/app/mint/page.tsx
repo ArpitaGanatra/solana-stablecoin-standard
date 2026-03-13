@@ -38,7 +38,9 @@ export default function MintBurnPage() {
   if (!config) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted">Load a stablecoin from the header first</p>
+        <p className="text-text-secondary">
+          Load a stablecoin from the header first
+        </p>
       </div>
     );
   }
@@ -175,7 +177,7 @@ export default function MintBurnPage() {
         <Card title="Mint Tokens">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 Recipient Address
               </label>
               <input
@@ -183,23 +185,25 @@ export default function MintBurnPage() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="Wallet address..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <div>
-              <label className="block text-sm text-muted mb-1">Amount</label>
+              <label className="block text-sm text-text-secondary mb-1">
+                Amount
+              </label>
               <input
                 type="number"
                 value={mintAmount}
                 onChange={(e) => setMintAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <button
               onClick={handleMint}
               disabled={loading || !recipient || !mintAmount}
-              className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-bg-primary py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               {loading ? "Processing..." : "Mint Tokens"}
             </button>
@@ -209,7 +213,7 @@ export default function MintBurnPage() {
         <Card title="Burn Tokens">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 Amount (from your wallet)
               </label>
               <input
@@ -217,13 +221,13 @@ export default function MintBurnPage() {
                 value={burnAmount}
                 onChange={(e) => setBurnAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <button
               onClick={handleBurn}
               disabled={loading || !burnAmount}
-              className="w-full bg-danger hover:bg-danger/80 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="w-full bg-danger hover:bg-danger/80 disabled:opacity-50 text-text-primary py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               {loading ? "Processing..." : "Burn Tokens"}
             </button>

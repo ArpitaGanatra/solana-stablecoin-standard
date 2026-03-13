@@ -28,7 +28,9 @@ export default function MintersPage() {
   if (!config) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted">Load a stablecoin from the header first</p>
+        <p className="text-text-secondary">
+          Load a stablecoin from the header first
+        </p>
       </div>
     );
   }
@@ -107,7 +109,7 @@ export default function MintersPage() {
         <Card title="Add Minter">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 Minter Address
               </label>
               <input
@@ -115,11 +117,11 @@ export default function MintersPage() {
                 value={minterAddr}
                 onChange={(e) => setMinterAddr(e.target.value)}
                 placeholder="Wallet address..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
                 <input
                   type="checkbox"
                   checked={unlimited}
@@ -131,20 +133,22 @@ export default function MintersPage() {
             </div>
             {!unlimited && (
               <div>
-                <label className="block text-sm text-muted mb-1">Quota</label>
+                <label className="block text-sm text-text-secondary mb-1">
+                  Quota
+                </label>
                 <input
                   type="number"
                   value={quota}
                   onChange={(e) => setQuota(e.target.value)}
                   placeholder="Max mint amount..."
-                  className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
                 />
               </div>
             )}
             <button
               onClick={handleAddMinter}
               disabled={loading || !minterAddr}
-              className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-bg-primary py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               {loading ? "Processing..." : "Add Minter"}
             </button>
@@ -153,12 +157,12 @@ export default function MintersPage() {
 
         <Card title="Remove Minter">
           <div className="space-y-4">
-            <p className="text-sm text-muted">
+            <p className="text-sm text-text-secondary">
               Remove a minter&apos;s privileges. The minter PDA account will be
               closed and rent returned.
             </p>
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 Minter Address
               </label>
               <input
@@ -166,13 +170,13 @@ export default function MintersPage() {
                 value={minterAddr}
                 onChange={(e) => setMinterAddr(e.target.value)}
                 placeholder="Wallet address..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <button
               onClick={handleRemoveMinter}
               disabled={loading || !minterAddr}
-              className="w-full bg-danger hover:bg-danger/80 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="w-full bg-danger hover:bg-danger/80 disabled:opacity-50 text-bg-primary py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               {loading ? "Processing..." : "Remove Minter"}
             </button>
@@ -181,9 +185,11 @@ export default function MintersPage() {
       </div>
 
       <Card title="Minter Info">
-        <p className="text-sm text-muted">
+        <p className="text-sm text-text-secondary">
           Total registered minters:{" "}
-          <span className="text-white font-medium">{config.totalMinters}</span>
+          <span className="text-text-primary font-medium">
+            {config.totalMinters}
+          </span>
         </p>
       </Card>
 

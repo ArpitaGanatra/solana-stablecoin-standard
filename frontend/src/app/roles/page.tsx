@@ -33,7 +33,9 @@ export default function RolesPage() {
   if (!config) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted">Load a stablecoin from the header first</p>
+        <p className="text-text-secondary">
+          Load a stablecoin from the header first
+        </p>
       </div>
     );
   }
@@ -157,10 +159,12 @@ export default function RolesPage() {
             return (
               <div
                 key={role}
-                className="flex items-center justify-between py-2 border-b border-card-border last:border-0"
+                className="flex items-center justify-between py-2 border-b border-border-default last:border-0"
               >
-                <span className="text-sm text-muted capitalize">{role}</span>
-                <span className="text-xs font-mono text-foreground">
+                <span className="text-sm text-text-secondary capitalize">
+                  {role}
+                </span>
+                <span className="text-xs font-mono text-text-primary">
                   {val.slice(0, 4)}...{val.slice(-4)}
                 </span>
               </div>
@@ -173,11 +177,13 @@ export default function RolesPage() {
         <Card title="Update Role">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-muted mb-1">Role</label>
+              <label className="block text-sm text-text-secondary mb-1">
+                Role
+              </label>
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               >
                 {ROLES.map((r) => {
                   const isCompliance = r === "blacklister" || r === "seizer";
@@ -191,7 +197,7 @@ export default function RolesPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 New Address
               </label>
               <input
@@ -199,13 +205,13 @@ export default function RolesPage() {
                 value={newAddress}
                 onChange={(e) => setNewAddress(e.target.value)}
                 placeholder="New role holder address..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <button
               onClick={handleUpdateRole}
               disabled={loading || !newAddress}
-              className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-bg-primary py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               {loading ? "Processing..." : "Update Role"}
             </button>
@@ -214,7 +220,7 @@ export default function RolesPage() {
 
         <Card title="Transfer Authority">
           <div className="space-y-4">
-            <p className="text-sm text-muted">
+            <p className="text-sm text-text-secondary">
               Two-step process: initiate transfer, then the new authority must
               accept.
             </p>
@@ -229,7 +235,7 @@ export default function RolesPage() {
               </div>
             )}
             <div>
-              <label className="block text-sm text-muted mb-1">
+              <label className="block text-sm text-text-secondary mb-1">
                 New Authority
               </label>
               <input
@@ -237,7 +243,7 @@ export default function RolesPage() {
                 value={newAuthority}
                 onChange={(e) => setNewAuthority(e.target.value)}
                 placeholder="New authority address..."
-                className="w-full bg-background border border-card-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
