@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  sss-backend:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - RPC_URL=${RPC_URL:-https://api.devnet.solana.com}
+      - PROGRAM_ID=${PROGRAM_ID}
+      - MINT=${MINT}
+      - KEYPAIR_PATH=/app/keys/id.json
+      - PORT=3000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - POLL_INTERVAL_MS=${POLL_INTERVAL_MS:-5000}
+      - DB_PATH=/app/data/sss.db
+      - NODE_ENV=production
+    volumes:
+      - sss-data:/app/data
+      - ${KEYPAIR_PATH:-~/.config/solana/id.json}:/app/keys/id.json:ro
+    restart: unless-stopped
+
+volumes:
+  sss-data:
