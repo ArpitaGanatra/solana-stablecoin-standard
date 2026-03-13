@@ -19,7 +19,13 @@ export function StatusBar({
   const timeStr = lastUpdated ? lastUpdated.toLocaleTimeString() : "never";
 
   return (
-    <Box flexDirection="row" justifyContent="space-between" marginTop={0}>
+    <Box
+      borderStyle="bold"
+      borderColor="gray"
+      flexDirection="row"
+      justifyContent="space-between"
+      paddingX={1}
+    >
       <Box gap={1}>
         {error ? (
           <Text color="red">Error: {error}</Text>
@@ -28,13 +34,15 @@ export function StatusBar({
         ) : loading ? (
           <Text color="yellow">Loading...</Text>
         ) : (
-          <Text dimColor>Ready</Text>
+          <Text color="greenBright">Ready</Text>
         )}
       </Box>
-      <Box gap={1}>
-        <Text dimColor>
-          {listening ? "Live" : "Offline"} | Updated: {timeStr}
+      <Box gap={2}>
+        <Text color={listening ? "greenBright" : "red"}>
+          {listening ? "● Live" : "○ Offline"}
         </Text>
+        <Text dimColor>|</Text>
+        <Text dimColor>Updated: {timeStr}</Text>
       </Box>
     </Box>
   );

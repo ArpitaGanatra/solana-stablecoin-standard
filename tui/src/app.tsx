@@ -121,11 +121,12 @@ export function App({
       />
 
       {/* Tab bar */}
-      <Box marginY={0} gap={1}>
+      <Box borderStyle="single" borderColor="gray" paddingX={1} gap={1}>
+        <Text dimColor>Navigation</Text>
         {TABS.map((t) => (
           <Box key={t.key}>
             <Text
-              color={activeTab === t.tab ? "cyan" : "gray"}
+              color={activeTab === t.tab ? "greenBright" : "gray"}
               bold={activeTab === t.tab}
             >
               [{t.key}] {t.label}
@@ -134,13 +135,13 @@ export function App({
         ))}
         <Box flexGrow={1} />
         <Text dimColor>
-          q:quit r:refresh m:mint b:burn f:freeze t:thaw p:pause o:roles x:authority
+          q:quit r:refresh m:mint b:burn f:freeze t:thaw p:pause
         </Text>
       </Box>
 
       <Box
         borderStyle="single"
-        borderColor="gray"
+        borderColor="cyan"
         flexDirection="column"
         minHeight={18}
         paddingX={1}

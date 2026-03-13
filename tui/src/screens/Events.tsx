@@ -74,14 +74,14 @@ export function EventsScreen({
         <Text
           bold={subTab === "live"}
           underline={subTab === "live"}
-          color={subTab === "live" ? "cyan" : "gray"}
+          color={subTab === "live" ? "greenBright" : "gray"}
         >
           [L] Live Events
         </Text>
         <Text
           bold={subTab === "audit"}
           underline={subTab === "audit"}
-          color={subTab === "audit" ? "cyan" : "gray"}
+          color={subTab === "audit" ? "greenBright" : "gray"}
         >
           [A] Audit Log
         </Text>

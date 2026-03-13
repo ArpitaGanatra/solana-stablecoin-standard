@@ -18,7 +18,7 @@ export function HoldersScreen({ state, decimals }: HoldersScreenProps) {
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
-        <Text bold underline color="cyan">
+        <Text bold color="cyan">
           Token Holders ({holders.length})
         </Text>
       </Box>
@@ -26,7 +26,7 @@ export function HoldersScreen({ state, decimals }: HoldersScreenProps) {
       {holders.length === 0 ? (
         <Text dimColor>No token holders found.</Text>
       ) : (
-        <Box flexDirection="column">
+        <Box flexDirection="column" borderStyle="single" borderColor="gray" paddingX={1}>
           {/* Header */}
           <Box>
             <Box width={6}>

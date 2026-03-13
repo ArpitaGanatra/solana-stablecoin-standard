@@ -179,18 +179,18 @@ export function ComplianceScreen({
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
-        <Text bold underline color="cyan">
+        <Text bold color="cyan">
           SSS-2 Compliance
         </Text>
         <Box marginLeft={2}>
-          <Text dimColor>
+          <Text color="gray">
             a:blacklist-add d:blacklist-remove c:check s:seize
           </Text>
         </Box>
       </Box>
 
       {/* Config summary */}
-      <Box flexDirection="column" marginBottom={1}>
+      <Box flexDirection="column" marginBottom={1} borderStyle="single" borderColor="gray" paddingX={1}>
         <Box>
           <Box width={22}>
             <Text dimColor>Permanent Delegate:</Text>

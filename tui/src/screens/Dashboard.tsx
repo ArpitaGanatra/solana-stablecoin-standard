@@ -51,9 +51,9 @@ export function Dashboard({ state, decimals, keypair }: DashboardProps) {
   return (
     <Box flexDirection="column" gap={1}>
       {/* Top row: Status + Supply */}
-      <Box gap={4}>
-        <Box flexDirection="column" width="50%">
-          <Text bold underline color="cyan">
+      <Box gap={2}>
+        <Box flexDirection="column" width="50%" borderStyle="single" borderColor="gray" paddingX={1}>
+          <Text bold color="cyan">
             Status
           </Text>
           <Box marginTop={1} flexDirection="column">
@@ -123,8 +123,8 @@ export function Dashboard({ state, decimals, keypair }: DashboardProps) {
           </Box>
         </Box>
 
-        <Box flexDirection="column" width="50%">
-          <Text bold underline color="cyan">
+        <Box flexDirection="column" width="50%" borderStyle="single" borderColor="gray" paddingX={1}>
+          <Text bold color="cyan">
             Supply & Counts
           </Text>
           <Box marginTop={1} flexDirection="column">
@@ -132,7 +132,7 @@ export function Dashboard({ state, decimals, keypair }: DashboardProps) {
               <Box width={16}>
                 <Text dimColor>Total Supply:</Text>
               </Box>
-              <Text bold color="white">
+              <Text bold color="greenBright">
                 {supplyStr}
               </Text>
             </Box>
@@ -140,22 +140,22 @@ export function Dashboard({ state, decimals, keypair }: DashboardProps) {
               <Box width={16}>
                 <Text dimColor>Holders:</Text>
               </Box>
-              <Text>{holders.length}</Text>
+              <Text color="white">{holders.length}</Text>
             </Box>
             <Box>
               <Box width={16}>
                 <Text dimColor>Minters:</Text>
               </Box>
-              <Text>{config.totalMinters}</Text>
+              <Text color="white">{config.totalMinters}</Text>
             </Box>
           </Box>
         </Box>
       </Box>
 
       {/* Bottom row: Roles + Features */}
-      <Box gap={4}>
-        <Box flexDirection="column" width="50%">
-          <Text bold underline color="cyan">
+      <Box gap={2}>
+        <Box flexDirection="column" width="50%" borderStyle="single" borderColor="gray" paddingX={1}>
+          <Text bold color="cyan">
             Roles
           </Text>
           <Box marginTop={1} flexDirection="column">
@@ -171,8 +171,8 @@ export function Dashboard({ state, decimals, keypair }: DashboardProps) {
           </Box>
         </Box>
 
-        <Box flexDirection="column" width="50%">
-          <Text bold underline color="cyan">
+        <Box flexDirection="column" width="50%" borderStyle="single" borderColor="gray" paddingX={1}>
+          <Text bold color="cyan">
             Features (Extensions)
           </Text>
           <Box marginTop={1} flexDirection="column">

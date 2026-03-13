@@ -124,11 +124,11 @@ export function MintersScreen({
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
-        <Text bold underline color="cyan">
+        <Text bold color="cyan">
           Minters ({config?.totalMinters || 0})
         </Text>
         <Box marginLeft={2}>
-          <Text dimColor>a:add d:delete</Text>
+          <Text color="gray">a:add d:delete</Text>
         </Box>
       </Box>
 
@@ -136,7 +136,7 @@ export function MintersScreen({
       {minters.length === 0 ? (
         <Text dimColor>No minters configured. Press 'a' to add one.</Text>
       ) : (
-        <Box flexDirection="column">
+        <Box flexDirection="column" borderStyle="single" borderColor="gray" paddingX={1}>
           <Box>
             <Box width={14}>
               <Text bold>Address</Text>

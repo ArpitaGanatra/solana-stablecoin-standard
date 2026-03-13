@@ -16,15 +16,21 @@ export function Header({
   isPaused,
 }: HeaderProps) {
   return (
-    <Box flexDirection="row" justifyContent="space-between" marginBottom={0}>
+    <Box
+      borderStyle="bold"
+      borderColor="cyan"
+      flexDirection="row"
+      justifyContent="space-between"
+      paddingX={1}
+    >
       <Box gap={1}>
         <Text bold color="cyan">
           SSS Admin TUI
         </Text>
-        <Text dimColor>|</Text>
+        <Text color="gray">|</Text>
         <Text color="white">Mint: {shortenAddress(mintAddress)}</Text>
-        <Text dimColor>|</Text>
-        <Text color="yellow">{preset}</Text>
+        <Text color="gray">|</Text>
+        <Text bold color="yellow">{preset}</Text>
       </Box>
       <Box gap={1}>
         {isPaused && (
@@ -32,7 +38,7 @@ export function Header({
             {" PAUSED "}
           </Text>
         )}
-        <Text color="green">{network}</Text>
+        <Text bold color="greenBright">{network}</Text>
       </Box>
     </Box>
   );
