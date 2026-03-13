@@ -1,0 +1,51 @@
+{
+  "cluster": "devnet",
+  "deployedAt": "2026-03-13T00:00:00Z",
+  "deployer": "CT5JXtS9a9WSH6pBPreeYgq5K4MCjXVNCpb7pjr8tYeg",
+  "programs": {
+    "sss_core": {
+      "programId": "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb",
+      "deploySignature": "2ksALcMEdES5RSQSmbnLtfdMhVGPsPy7VW5izjxBmLr5SJuo9q2W7g2bDJAgHbNhT9qnnztyhyu6SxYaekqzQWxF"
+    },
+    "sss_transfer_hook": {
+      "programId": "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9",
+      "deploySignature": "26HVU5a3zq1aoRCCwE4N63eecPtdJtytmxHmuuF5jZPhQNcJfc6xBMftC59XiF5hKKaobHKYdCtiDMCwELpreXFk"
+    }
+  },
+  "exampleTransactions": [
+    {
+      "operation": "initialize (SSS-1)",
+      "signature": "4jszMywLSLyD28A1vyy8tUzPhwrgMc9yH2GMHhfjTWdv6tc3WcJGV48usyrDUpw88hB3rDEcUzaDkJECEzQW5urJ"
+    },
+    {
+      "operation": "add_minter",
+      "signature": "59xGzXxrHtnEU3z4T9DXtqq51w1imfd2GYSdyRvnHZqydwvVp2DcBtaU2KE6dLqRz3PtJ86hVA4cJ5CHhRQMmP7P"
+    },
+    {
+      "operation": "mint_tokens (100 sUSD)",
+      "signature": "31uvjUekvces3yZWaRw7pwvMZXJUT38Pb2GEy4CWMPNugbjahonHRcjcxZ5XJLdAMVZR5WMdSdM4eXLmdCq3i6vC"
+    },
+    {
+      "operation": "freeze_account",
+      "signature": "4omuUgeEX55at1XQnXG9CWBX936k5Tz7kfNU6m55PnZFs8EZCjAApAEQVkeBweBZBTDoNAz7ZHsVrjAcwFER4zVH"
+    },
+    {
+      "operation": "thaw_account",
+      "signature": "5bRu6Kxa94sieQEgMdPQ4sw6rJ3KoMYGH3vQayHJ5bgJJ6BaFrspxD7hq2LDHe9Nf69rVM1YyTNm5mEHqvFspifp"
+    },
+    {
+      "operation": "burn_tokens (10 sUSD)",
+      "signature": "5JBE7pvZUdHEooBvYqE4HFnkTqh9SqGGwrArMhJgv2o83EjnTBbJDu3YRg6SdWEBXRsjZcKosD4NVsuuhU3J65xr"
+    },
+    {
+      "operation": "pause",
+      "signature": "2f7PXqPxywZovdV2Z1uG4r55CHakB9d8jLQsVTD9hCfCREjbCoBojRNXJEmndzSHw8dcaBubrE9uq3ufhVE2aWjM"
+    },
+    {
+      "operation": "unpause",
+      "signature": "8no1VwH49rMBrA1CegNUqKUAVq3xiRELUP8uiGd6o3i6ygXBp4hhp6qxi5vD5jRcr5H5Zg5tLmKZJNA8KfrMMB6"
+    }
+  ],
+  "mint": "Bm1WceL2vCynExpLaqoUx2PBSBv2KZ9SoKvrzDAs9ep6",
+  "configPda": "JgHWFogaBFAMianA8hUhRXiTDYQ2KecCTbyfWSkDinj"
+}
