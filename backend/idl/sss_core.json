@@ -1,0 +1,1642 @@
+{
+  "address": "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb",
+  "metadata": {
+    "name": "sss_core",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "accept_authority",
+      "discriminator": [107, 86, 198, 91, 33, 12, 107, 160],
+      "accounts": [
+        {
+          "name": "new_authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "add_minter",
+      "discriminator": [75, 86, 218, 40, 219, 6, 141, 29],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "minter_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [109, 105, 110, 116, 101, 114, 95, 105, 110, 102, 111]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "arg",
+                "path": "minter_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "minter_address",
+          "type": "pubkey"
+        },
+        {
+          "name": "quota",
+          "type": "u64"
+        },
+        {
+          "name": "unlimited",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "blacklist_address",
+      "discriminator": [53, 99, 149, 238, 109, 245, 181, 198],
+      "accounts": [
+        {
+          "name": "blacklister",
+          "writable": true,
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "blacklist_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98, 108, 97, 99, 107, 108, 105, 115, 116, 95, 115, 101, 101,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "arg",
+                "path": "address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "address",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "burn_tokens",
+      "discriminator": [76, 15, 51, 254, 229, 215, 121, 66],
+      "accounts": [
+        {
+          "name": "burner",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "cancel_authority_transfer",
+      "discriminator": [94, 131, 125, 184, 183, 24, 125, 229],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "freeze_account",
+      "discriminator": [253, 75, 82, 133, 167, 238, 43, 130],
+      "accounts": [
+        {
+          "name": "freezer",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "InitializeParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mint_tokens",
+      "discriminator": [59, 132, 24, 246, 122, 39, 8, 243],
+      "accounts": [
+        {
+          "name": "minter",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "minter_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [109, 105, 110, 116, 101, 114, 95, 105, 110, 102, 111]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "account",
+                "path": "minter"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "pause",
+      "discriminator": [211, 22, 221, 251, 74, 121, 193, 47],
+      "accounts": [
+        {
+          "name": "pauser",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "remove_from_blacklist",
+      "discriminator": [47, 105, 20, 10, 165, 168, 203, 219],
+      "accounts": [
+        {
+          "name": "blacklister",
+          "writable": true,
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "blacklist_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98, 108, 97, 99, 107, 108, 105, 115, 116, 95, 115, 101, 101,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "arg",
+                "path": "address"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "address",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "remove_minter",
+      "discriminator": [241, 69, 84, 16, 164, 232, 131, 79],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          },
+          "relations": ["minter_info"]
+        },
+        {
+          "name": "minter_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [109, 105, 110, 116, 101, 114, 95, 105, 110, 102, 111]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "arg",
+                "path": "minter_address"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "minter_address",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "seize",
+      "discriminator": [129, 159, 143, 31, 161, 224, 241, 84],
+      "accounts": [
+        {
+          "name": "seizer",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "from",
+          "writable": true
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "thaw_account",
+      "discriminator": [115, 152, 79, 213, 213, 169, 184, 35],
+      "accounts": [
+        {
+          "name": "freezer",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_authority",
+      "discriminator": [48, 169, 76, 72, 229, 180, 55, 161],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "discriminator": [169, 144, 4, 38, 10, 141, 188, 255],
+      "accounts": [
+        {
+          "name": "pauser",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_minter",
+      "discriminator": [164, 129, 164, 88, 75, 29, 91, 38],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          },
+          "relations": ["minter_info"]
+        },
+        {
+          "name": "minter_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [109, 105, 110, 116, 101, 114, 95, 105, 110, 102, 111]
+              },
+              {
+                "kind": "account",
+                "path": "config"
+              },
+              {
+                "kind": "arg",
+                "path": "minter_address"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "minter_address",
+          "type": "pubkey"
+        },
+        {
+          "name": "quota",
+          "type": "u64"
+        },
+        {
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "name": "unlimited",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "update_roles",
+      "discriminator": [220, 152, 205, 233, 177, 123, 219, 125],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": ["config"]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115, 116, 97, 98, 108, 101, 99, 111, 105, 110, 95, 99, 111,
+                  110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.mint",
+                "account": "StablecoinConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "UpdateRolesParams"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BlacklistEntry",
+      "discriminator": [218, 179, 231, 40, 141, 25, 168, 189]
+    },
+    {
+      "name": "MinterInfo",
+      "discriminator": [158, 4, 176, 199, 251, 15, 209, 131]
+    },
+    {
+      "name": "StablecoinConfig",
+      "discriminator": [127, 25, 244, 213, 1, 192, 101, 6]
+    }
+  ],
+  "events": [
+    {
+      "name": "AccountFrozen",
+      "discriminator": [221, 214, 59, 29, 246, 50, 119, 206]
+    },
+    {
+      "name": "AccountThawed",
+      "discriminator": [49, 63, 73, 105, 129, 190, 40, 119]
+    },
+    {
+      "name": "AddedToBlacklist",
+      "discriminator": [3, 196, 78, 136, 111, 197, 188, 114]
+    },
+    {
+      "name": "AuthorityTransferAccepted",
+      "discriminator": [149, 165, 140, 221, 104, 203, 239, 121]
+    },
+    {
+      "name": "AuthorityTransferCancelled",
+      "discriminator": [31, 228, 187, 148, 20, 99, 237, 48]
+    },
+    {
+      "name": "AuthorityTransferProposed",
+      "discriminator": [103, 244, 27, 116, 177, 4, 100, 119]
+    },
+    {
+      "name": "Initialized",
+      "discriminator": [208, 213, 115, 98, 115, 82, 201, 209]
+    },
+    {
+      "name": "MinterAdded",
+      "discriminator": [140, 185, 72, 194, 3, 99, 122, 172]
+    },
+    {
+      "name": "MinterRemoved",
+      "discriminator": [157, 21, 47, 29, 4, 195, 30, 77]
+    },
+    {
+      "name": "Paused",
+      "discriminator": [172, 248, 5, 253, 49, 255, 255, 232]
+    },
+    {
+      "name": "RemovedFromBlacklist",
+      "discriminator": [55, 136, 25, 65, 199, 36, 146, 33]
+    },
+    {
+      "name": "RolesUpdated",
+      "discriminator": [81, 37, 176, 32, 30, 204, 251, 246]
+    },
+    {
+      "name": "TokensBurned",
+      "discriminator": [230, 255, 34, 113, 226, 53, 227, 9]
+    },
+    {
+      "name": "TokensMinted",
+      "discriminator": [207, 212, 128, 194, 175, 54, 64, 24]
+    },
+    {
+      "name": "TokensSeized",
+      "discriminator": [51, 129, 131, 114, 206, 234, 140, 122]
+    },
+    {
+      "name": "Unpaused",
+      "discriminator": [156, 150, 47, 174, 120, 216, 93, 117]
+    },
+    {
+      "name": "UpdatedMinter",
+      "discriminator": [64, 138, 203, 97, 222, 172, 78, 102]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6001,
+      "name": "Paused",
+      "msg": "Operations on this mint are paused"
+    },
+    {
+      "code": 6002,
+      "name": "MinterQuotaExceeded",
+      "msg": "Minter quota exceeded"
+    },
+    {
+      "code": 6003,
+      "name": "MinterNotActive",
+      "msg": "Minter is not active"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidAuthority",
+      "msg": "Invalid authority"
+    },
+    {
+      "code": 6005,
+      "name": "NameTooLong",
+      "msg": "Name too long"
+    },
+    {
+      "code": 6006,
+      "name": "SymbolTooLong",
+      "msg": "Symbol too long"
+    },
+    {
+      "code": 6007,
+      "name": "UriTooLong",
+      "msg": "URI too long"
+    },
+    {
+      "code": 6008,
+      "name": "UriRequired",
+      "msg": "URI required when metadata is enabled"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount"
+    },
+    {
+      "code": 6010,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6011,
+      "name": "NotPaused",
+      "msg": "Not paused"
+    },
+    {
+      "code": 6012,
+      "name": "ComplianceNotEnabled",
+      "msg": "Compliance module not enabled"
+    },
+    {
+      "code": 6013,
+      "name": "TransferHookProgramRequired",
+      "msg": "Transfer hook program ID required when transfer hook is enabled"
+    },
+    {
+      "code": 6014,
+      "name": "ZeroAddress",
+      "msg": "Role address cannot be the zero/default pubkey"
+    },
+    {
+      "code": 6015,
+      "name": "NoPendingAuthority",
+      "msg": "No pending authority transfer to cancel"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidQuotaForUnlimited",
+      "msg": "Quota must be 0 when unlimited is true"
+    }
+  ],
+  "types": [
+    {
+      "name": "AccountFrozen",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "account",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountThawed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "account",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AddedToBlacklist",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "address",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuthorityTransferAccepted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuthorityTransferCancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "cancelled_pending",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuthorityTransferProposed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "current_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "proposed_authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BlacklistEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "config",
+            "type": "pubkey"
+          },
+          {
+            "name": "address",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitializeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "enable_metadata",
+            "type": "bool"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "additional_metadata",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "MetadataField"
+                }
+              }
+            }
+          },
+          {
+            "name": "enable_permanent_delegate",
+            "type": "bool"
+          },
+          {
+            "name": "enable_transfer_hook",
+            "type": "bool"
+          },
+          {
+            "name": "default_account_frozen",
+            "type": "bool"
+          },
+          {
+            "name": "transfer_hook_program_id",
+            "docs": ["Required when enable_transfer_hook is true"],
+            "type": {
+              "option": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Initialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "has_metadata",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MetadataField",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MinterAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "minter_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "quota",
+            "type": "u64"
+          },
+          {
+            "name": "unlimited",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MinterInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "config",
+            "type": "pubkey"
+          },
+          {
+            "name": "minter",
+            "type": "pubkey"
+          },
+          {
+            "name": "quota",
+            "type": "u64"
+          },
+          {
+            "name": "minted",
+            "type": "u64"
+          },
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "unlimited",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MinterRemoved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "minter_address",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Paused",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemovedFromBlacklist",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "address",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RolesUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_pauser",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_pauser",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_burner",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_burner",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_freezer",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_freezer",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_blacklister",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_blacklister",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_seizer",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_seizer",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StablecoinConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          },
+          {
+            "name": "burner",
+            "type": "pubkey"
+          },
+          {
+            "name": "freezer",
+            "type": "pubkey"
+          },
+          {
+            "name": "blacklister",
+            "type": "pubkey"
+          },
+          {
+            "name": "seizer",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_authority",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "is_paused",
+            "type": "bool"
+          },
+          {
+            "name": "has_metadata",
+            "type": "bool"
+          },
+          {
+            "name": "total_minters",
+            "type": "u16"
+          },
+          {
+            "name": "enable_permanent_delegate",
+            "type": "bool"
+          },
+          {
+            "name": "enable_transfer_hook",
+            "type": "bool"
+          },
+          {
+            "name": "default_account_frozen",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "_reserved",
+            "type": {
+              "array": ["u8", 32]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokensBurned",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "burner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokensMinted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "minter",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokensSeized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "from",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Unpaused",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateRolesParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_pauser",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "new_burner",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "new_freezer",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "new_blacklister",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "new_seizer",
+            "type": {
+              "option": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdatedMinter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "minter_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "quota",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -46,7 +46,9 @@ export function statusRouter(
   router.get("/status", async (_req: Request, res: Response) => {
     try {
       const [config, mintInfo] = await Promise.all([
-        accountNamespace.stablecoinConfig.fetch(configPda) as Promise<StablecoinConfigAccount>,
+        accountNamespace.stablecoinConfig.fetch(
+          configPda
+        ) as Promise<StablecoinConfigAccount>,
         getMint(connection, mint, "confirmed", TOKEN_2022_PROGRAM_ID),
       ]);
 
@@ -100,10 +102,18 @@ export function statusRouter(
     try {
       const events = eventListener.getEvents({
         eventType: req.query.eventType as string | undefined,
-        fromSlot: req.query.fromSlot ? parseInt(req.query.fromSlot as string, 10) : undefined,
-        toSlot: req.query.toSlot ? parseInt(req.query.toSlot as string, 10) : undefined,
-        limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
-        offset: req.query.offset ? parseInt(req.query.offset as string, 10) : undefined,
+        fromSlot: req.query.fromSlot
+          ? parseInt(req.query.fromSlot as string, 10)
+          : undefined,
+        toSlot: req.query.toSlot
+          ? parseInt(req.query.toSlot as string, 10)
+          : undefined,
+        limit: req.query.limit
+          ? parseInt(req.query.limit as string, 10)
+          : undefined,
+        offset: req.query.offset
+          ? parseInt(req.query.offset as string, 10)
+          : undefined,
       });
       res.json(events);
     } catch (err: unknown) {

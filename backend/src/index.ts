@@ -40,12 +40,16 @@ async function main() {
     idl = await Program.fetchIdl(programId, provider);
     if (!idl) throw new Error("IDL not found on-chain");
   } catch {
-    // Fallback: load from local IDL file
+    // Fallback: load from local IDL file (bundled in backend/idl/ or project root target/)
     try {
-      idl = require("../../target/idl/sss_core.json") as Idl;
+      try {
+        idl = require("../idl/sss_core.json") as Idl;
+      } catch {
+        idl = require("../../target/idl/sss_core.json") as Idl;
+      }
     } catch {
       logger.error(
-        "Could not load program IDL. Set IDL on-chain or ensure target/idl/sss_core.json exists."
+        "Could not load program IDL. Set IDL on-chain or place sss_core.json in backend/idl/ or target/idl/."
       );
       process.exit(1);
     }

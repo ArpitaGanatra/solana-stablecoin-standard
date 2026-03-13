@@ -78,7 +78,11 @@ export class ComplianceService {
     const target = new PublicKey(address);
 
     const [blacklistPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("blacklist_entry"), this.configPda.toBuffer(), target.toBuffer()],
+      [
+        Buffer.from("blacklist_entry"),
+        this.configPda.toBuffer(),
+        target.toBuffer(),
+      ],
       this.program.programId
     );
 
@@ -113,7 +117,11 @@ export class ComplianceService {
     const target = new PublicKey(address);
 
     const [blacklistPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("blacklist_entry"), this.configPda.toBuffer(), target.toBuffer()],
+      [
+        Buffer.from("blacklist_entry"),
+        this.configPda.toBuffer(),
+        target.toBuffer(),
+      ],
       this.program.programId
     );
 
@@ -144,13 +152,21 @@ export class ComplianceService {
     const target = new PublicKey(address);
 
     const [blacklistPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("blacklist_entry"), this.configPda.toBuffer(), target.toBuffer()],
+      [
+        Buffer.from("blacklist_entry"),
+        this.configPda.toBuffer(),
+        target.toBuffer(),
+      ],
       this.program.programId
     );
 
     try {
-      await (this.program.account as Record<string, { fetch: (pda: PublicKey) => Promise<unknown> }>)
-        .blacklistEntry.fetch(blacklistPda);
+      await (
+        this.program.account as Record<
+          string,
+          { fetch: (pda: PublicKey) => Promise<unknown> }
+        >
+      ).blacklistEntry.fetch(blacklistPda);
       return { isBlacklisted: true, address };
     } catch {
       return { isBlacklisted: false, address };

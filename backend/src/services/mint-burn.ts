@@ -151,20 +151,35 @@ export class MintBurnService {
       try {
         new PublicKey(request.recipient!);
       } catch {
-        return this.updateStatus(id, "rejected", undefined, "Invalid recipient address");
+        return this.updateStatus(
+          id,
+          "rejected",
+          undefined,
+          "Invalid recipient address"
+        );
       }
 
       // Validate amount is positive
       const amount = new BN(request.amount);
       if (amount.lte(new BN(0))) {
-        return this.updateStatus(id, "rejected", undefined, "Amount must be positive");
+        return this.updateStatus(
+          id,
+          "rejected",
+          undefined,
+          "Amount must be positive"
+        );
       }
     }
 
     if (request.type === "burn") {
       const amount = new BN(request.amount);
       if (amount.lte(new BN(0))) {
-        return this.updateStatus(id, "rejected", undefined, "Amount must be positive");
+        return this.updateStatus(
+          id,
+          "rejected",
+          undefined,
+          "Amount must be positive"
+        );
       }
 
       // Validate token account if provided
@@ -172,7 +187,12 @@ export class MintBurnService {
         try {
           new PublicKey(request.recipient);
         } catch {
-          return this.updateStatus(id, "rejected", undefined, "Invalid token account address");
+          return this.updateStatus(
+            id,
+            "rejected",
+            undefined,
+            "Invalid token account address"
+          );
         }
       }
     }
@@ -317,7 +337,12 @@ export class MintBurnService {
 
     // Ensure ATA exists
     try {
-      await getAccount(this.connection, tokenAccount, "confirmed", TOKEN_2022_PROGRAM_ID);
+      await getAccount(
+        this.connection,
+        tokenAccount,
+        "confirmed",
+        TOKEN_2022_PROGRAM_ID
+      );
     } catch {
       const createAtaIx = createAssociatedTokenAccountInstruction(
         this.authority.publicKey,
@@ -327,7 +352,9 @@ export class MintBurnService {
         TOKEN_2022_PROGRAM_ID,
         ASSOCIATED_TOKEN_PROGRAM_ID
       );
-      const latestBlockhash = await this.connection.getLatestBlockhash("confirmed");
+      const latestBlockhash = await this.connection.getLatestBlockhash(
+        "confirmed"
+      );
       const tx = new Transaction({
         blockhash: latestBlockhash.blockhash,
         lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
@@ -406,7 +433,10 @@ export class MintBurnService {
       )
       .run(status, txSignature ?? null, error ?? null, id);
 
-    this.logger.info({ id, status, txSignature, error }, "Request status updated");
+    this.logger.info(
+      { id, status, txSignature, error },
+      "Request status updated"
+    );
 
     const updated = this.getRequest(id);
     if (!updated) throw new Error(`Request not found after update: ${id}`);

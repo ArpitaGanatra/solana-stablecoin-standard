@@ -1,8 +1,17 @@
 {
-  "license": "ISC",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "build:sdk": "cd sdk/core && npm run build",
+    "build:cli": "cd cli && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:all": "npm run build:sdk && npm run build:cli && npm run build:backend",
+    "setup": "npm install && cd sdk/core && npm install && npm run build && cd ../../cli && npm install && cd ../backend && npm install"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",

@@ -25,6 +25,9 @@ RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
+# Bundle IDL for offline fallback (built by `anchor build` in project root)
+COPY idl/ ./idl/
+
 # Create data directory for SQLite
 RUN mkdir -p /app/data
 

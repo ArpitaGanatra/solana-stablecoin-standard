@@ -15,6 +15,7 @@ import { registerSeizeCommand } from "./commands/seize";
 import { registerMintersCommand } from "./commands/minters";
 import { registerRolesCommand } from "./commands/roles";
 import { registerHoldersCommand } from "./commands/holders";
+import { registerAuditLogCommand } from "./commands/audit-log";
 
 const program = new Command();
 
@@ -42,5 +43,6 @@ registerSeizeCommand(program);
 registerMintersCommand(program);
 registerRolesCommand(program);
 registerHoldersCommand(program);
+registerAuditLogCommand(program);
 
 program.parse();

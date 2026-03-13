@@ -72,10 +72,7 @@ const RETRY_BACKOFF_MS = [1000, 5000, 30000, 120000, 600000]; // 1s, 5s, 30s, 2m
 export class WebhookService {
   private retryTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(
-    private db: Database.Database,
-    private logger: Logger
-  ) {}
+  constructor(private db: Database.Database, private logger: Logger) {}
 
   // ── Subscription Management ──
 
@@ -123,7 +120,9 @@ export class WebhookService {
   }
 
   deleteSubscription(id: string): void {
-    this.db.prepare("DELETE FROM webhook_deliveries WHERE subscription_id = ?").run(id);
+    this.db
+      .prepare("DELETE FROM webhook_deliveries WHERE subscription_id = ?")
+      .run(id);
     this.db.prepare("DELETE FROM webhook_subscriptions WHERE id = ?").run(id);
     this.logger.info({ id }, "Webhook subscription deleted");
   }
@@ -222,7 +221,11 @@ export class WebhookService {
           .run(attempt, response.status, delivery.id);
 
         this.logger.info(
-          { deliveryId: delivery.id, url: delivery.url, status: response.status },
+          {
+            deliveryId: delivery.id,
+            url: delivery.url,
+            status: response.status,
+          },
           "Webhook delivered"
         );
       } else {

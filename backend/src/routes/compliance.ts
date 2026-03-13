@@ -35,7 +35,9 @@ export function complianceRouter(
         return;
       }
       if (!isValidPublicKey(address)) {
-        res.status(400).json({ error: "address must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "address must be a valid Solana address" });
         return;
       }
       const result = await complianceService.blacklistAddress(address, reason);
@@ -52,11 +54,16 @@ export function complianceRouter(
     try {
       const address = req.params.address as string;
       if (!isValidPublicKey(address)) {
-        res.status(400).json({ error: "address must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "address must be a valid Solana address" });
         return;
       }
       const { reason } = req.body ?? {};
-      const result = await complianceService.removeFromBlacklist(address, reason);
+      const result = await complianceService.removeFromBlacklist(
+        address,
+        reason
+      );
       res.json(result);
     } catch (err: unknown) {
       const message = getErrorMessage(err);
@@ -70,7 +77,9 @@ export function complianceRouter(
     try {
       const address = req.params.address as string;
       if (!isValidPublicKey(address)) {
-        res.status(400).json({ error: "address must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "address must be a valid Solana address" });
         return;
       }
       const status = await complianceService.isBlacklisted(address);
@@ -91,7 +100,9 @@ export function complianceRouter(
         return;
       }
       if (!isValidPublicKey(address)) {
-        res.status(400).json({ error: "address must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "address must be a valid Solana address" });
         return;
       }
       const result = await complianceService.screenAddress(address);
@@ -108,7 +119,9 @@ export function complianceRouter(
     try {
       const { from, treasury, amount, reason } = req.body;
       if (!from || !treasury || !amount) {
-        res.status(400).json({ error: "from, treasury, and amount are required" });
+        res
+          .status(400)
+          .json({ error: "from, treasury, and amount are required" });
         return;
       }
       if (!isValidPublicKey(from)) {
@@ -116,7 +129,9 @@ export function complianceRouter(
         return;
       }
       if (!isValidPublicKey(treasury)) {
-        res.status(400).json({ error: "treasury must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "treasury must be a valid Solana address" });
         return;
       }
       const result = await complianceService.seize(
@@ -140,13 +155,18 @@ export function complianceRouter(
     try {
       const address = req.params.address as string;
       if (!isValidPublicKey(address)) {
-        res.status(400).json({ error: "address must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "address must be a valid Solana address" });
         return;
       }
       const limit = req.query.limit
         ? parseInt(req.query.limit as string, 10)
         : 25;
-      const history = await complianceService.getTransactionHistory(address, limit);
+      const history = await complianceService.getTransactionHistory(
+        address,
+        limit
+      );
       res.json(history);
     } catch (err: unknown) {
       res.status(500).json({ error: getErrorMessage(err) });
@@ -162,8 +182,12 @@ export function complianceRouter(
         action: req.query.action as string | undefined,
         actor: req.query.actor as string | undefined,
         target: req.query.target as string | undefined,
-        limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
-        offset: req.query.offset ? parseInt(req.query.offset as string, 10) : undefined,
+        limit: req.query.limit
+          ? parseInt(req.query.limit as string, 10)
+          : undefined,
+        offset: req.query.offset
+          ? parseInt(req.query.offset as string, 10)
+          : undefined,
       });
       res.json(entries);
     } catch (err: unknown) {
@@ -178,7 +202,9 @@ export function complianceRouter(
       res.setHeader("Content-Type", "application/json");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="audit-trail-${new Date().toISOString().split("T")[0]}.json"`
+        `attachment; filename="audit-trail-${
+          new Date().toISOString().split("T")[0]
+        }.json"`
       );
       res.send(data);
     } catch (err: unknown) {
@@ -197,7 +223,9 @@ export function complianceRouter(
         return;
       }
       if (!events || !Array.isArray(events) || events.length === 0) {
-        res.status(400).json({ error: "events[] is required and must not be empty" });
+        res
+          .status(400)
+          .json({ error: "events[] is required and must not be empty" });
         return;
       }
       const sub = webhookService.createSubscription({ url, events, secret });
@@ -233,7 +261,10 @@ export function complianceRouter(
       const lim = req.query.limit
         ? parseInt(req.query.limit as string, 10)
         : 50;
-      const deliveries = webhookService.getDeliveries(req.params.id as string, lim);
+      const deliveries = webhookService.getDeliveries(
+        req.params.id as string,
+        lim
+      );
       res.json(deliveries);
     } catch (err: unknown) {
       res.status(500).json({ error: getErrorMessage(err) });

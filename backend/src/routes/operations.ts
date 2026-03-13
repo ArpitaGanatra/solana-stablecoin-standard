@@ -1,6 +1,10 @@
 import { Router, Request, Response } from "express";
 import { PublicKey } from "@solana/web3.js";
-import type { MintBurnService, RequestType, RequestStatus } from "../services/mint-burn";
+import type {
+  MintBurnService,
+  RequestType,
+  RequestStatus,
+} from "../services/mint-burn";
 import type { Logger } from "../utils/logger";
 
 function getErrorMessage(err: unknown): string {
@@ -33,7 +37,9 @@ export function operationsRouter(
       }
 
       if (typeof recipient !== "string" || !isValidPublicKey(recipient)) {
-        res.status(400).json({ error: "recipient must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "recipient must be a valid Solana address" });
         return;
       }
 
@@ -45,9 +51,11 @@ export function operationsRouter(
       });
 
       const statusCode =
-        result.status === "completed" ? 200
-        : result.status === "rejected" ? 400
-        : 500;
+        result.status === "completed"
+          ? 200
+          : result.status === "rejected"
+          ? 400
+          : 500;
       res.status(statusCode).json(result);
     } catch (err: unknown) {
       const message = getErrorMessage(err);
@@ -67,7 +75,9 @@ export function operationsRouter(
       }
 
       if (tokenAccount && !isValidPublicKey(tokenAccount)) {
-        res.status(400).json({ error: "tokenAccount must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "tokenAccount must be a valid Solana address" });
         return;
       }
 
@@ -78,9 +88,11 @@ export function operationsRouter(
       });
 
       const statusCode =
-        result.status === "completed" ? 200
-        : result.status === "rejected" ? 400
-        : 500;
+        result.status === "completed"
+          ? 200
+          : result.status === "rejected"
+          ? 400
+          : 500;
       res.status(statusCode).json(result);
     } catch (err: unknown) {
       const message = getErrorMessage(err);
@@ -95,15 +107,22 @@ export function operationsRouter(
       const { tokenAccount } = req.body;
 
       if (!tokenAccount || !isValidPublicKey(tokenAccount)) {
-        res.status(400).json({ error: "tokenAccount must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "tokenAccount must be a valid Solana address" });
         return;
       }
 
-      const txSig = await mintBurnService.freezeAccount(new PublicKey(tokenAccount));
+      const txSig = await mintBurnService.freezeAccount(
+        new PublicKey(tokenAccount)
+      );
       res.json({ txSignature: txSig });
     } catch (err: unknown) {
       const message = getErrorMessage(err);
-      logger.error({ error: message, requestId: req.requestId }, "Freeze failed");
+      logger.error(
+        { error: message, requestId: req.requestId },
+        "Freeze failed"
+      );
       res.status(500).json({ error: message, requestId: req.requestId });
     }
   });
@@ -114,11 +133,15 @@ export function operationsRouter(
       const { tokenAccount } = req.body;
 
       if (!tokenAccount || !isValidPublicKey(tokenAccount)) {
-        res.status(400).json({ error: "tokenAccount must be a valid Solana address" });
+        res
+          .status(400)
+          .json({ error: "tokenAccount must be a valid Solana address" });
         return;
       }
 
-      const txSig = await mintBurnService.thawAccount(new PublicKey(tokenAccount));
+      const txSig = await mintBurnService.thawAccount(
+        new PublicKey(tokenAccount)
+      );
       res.json({ txSignature: txSig });
     } catch (err: unknown) {
       const message = getErrorMessage(err);
@@ -133,8 +156,12 @@ export function operationsRouter(
       const requests = mintBurnService.listRequests({
         type: req.query.type as RequestType | undefined,
         status: req.query.status as RequestStatus | undefined,
-        limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
-        offset: req.query.offset ? parseInt(req.query.offset as string, 10) : undefined,
+        limit: req.query.limit
+          ? parseInt(req.query.limit as string, 10)
+          : undefined,
+        offset: req.query.offset
+          ? parseInt(req.query.offset as string, 10)
+          : undefined,
       });
       res.json(requests);
     } catch (err: unknown) {
