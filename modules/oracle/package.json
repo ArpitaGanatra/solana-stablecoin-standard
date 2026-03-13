@@ -1,0 +1,25 @@
+{
+  "name": "@stbr/sss-oracle-feeds",
+  "version": "0.1.0",
+  "description": "Off-chain oracle price feeds and depeg monitoring for Solana Stablecoin Standard",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha -r ts-node/register tests/**/*.ts --timeout 30000"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.0",
+    "bn.js": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.1",
+    "@types/mocha": "^10.0.0",
+    "@types/chai": "^4.3.0",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  },
+  "license": "MIT"
+}

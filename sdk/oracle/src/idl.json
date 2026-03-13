@@ -1,0 +1,978 @@
+{
+  "address": "GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH",
+  "metadata": {
+    "name": "sss_oracle",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Oracle integration module for SSS stablecoins — Switchboard price feeds for non-USD pegs"
+  },
+  "instructions": [
+    {
+      "name": "initialize_oracle",
+      "discriminator": [144, 223, 131, 120, 196, 253, 181, 99],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "stablecoin_mint",
+          "docs": ["The SSS stablecoin mint (Token-2022)."]
+        },
+        {
+          "name": "collateral_mint",
+          "docs": ["The collateral token mint (standard SPL token, e.g. USDC)."]
+        },
+        {
+          "name": "oracle_feed",
+          "docs": ["The Switchboard pull feed account."]
+        },
+        {
+          "name": "oracle_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111, 114, 97, 99, 108, 101, 95, 99, 111, 110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "stablecoin_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_authority",
+          "docs": [
+            "The vault authority PDA that will own the collateral vault."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118, 97, 117, 108, 116, 95, 97, 117, 116, 104, 111, 114, 105,
+                  116, 121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_vault",
+          "docs": [
+            "The collateral vault token account, owned by vault_authority."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault_authority"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6, 221, 246, 225, 215, 101, 161, 147, 217, 203, 225, 70, 206,
+                  235, 121, 172, 28, 180, 133, 237, 95, 91, 55, 145, 58, 140,
+                  245, 133, 126, 255, 0, 169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "collateral_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140, 151, 37, 143, 78, 36, 137, 241, 187, 61, 16, 41, 20, 142,
+                13, 131, 11, 90, 19, 153, 218, 255, 16, 132, 4, 142, 123, 216,
+                219, 233, 248, 89
+              ]
+            }
+          }
+        },
+        {
+          "name": "sss_core_program",
+          "docs": ["The sss-core program (stored for reference)."]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "InitializeOracleParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mint_with_oracle",
+      "discriminator": [59, 36, 162, 197, 12, 79, 194, 72],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "oracle_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111, 114, 97, 99, 108, 101, 95, 99, 111, 110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config.stablecoin_mint",
+                "account": "OracleConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle_feed",
+          "docs": ["The Switchboard pull feed account."]
+        },
+        {
+          "name": "vault_authority",
+          "docs": [
+            "The vault authority PDA — signs the CPI to sss-core as the minter."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118, 97, 117, 108, 116, 95, 97, 117, 116, 104, 111, 114, 105,
+                  116, 121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_vault",
+          "docs": ["Collateral vault token account."],
+          "writable": true
+        },
+        {
+          "name": "user_collateral_account",
+          "docs": ["User's collateral token account (e.g. USDC)."],
+          "writable": true
+        },
+        {
+          "name": "stablecoin_mint",
+          "docs": ["The stablecoin mint (Token-2022)."],
+          "writable": true
+        },
+        {
+          "name": "user_stablecoin_account",
+          "docs": ["User's stablecoin token account (Token-2022)."],
+          "writable": true
+        },
+        {
+          "name": "sss_core_config",
+          "docs": ["sss-core StablecoinConfig PDA."]
+        },
+        {
+          "name": "minter_info",
+          "docs": ["MinterInfo for the vault_authority in sss-core."],
+          "writable": true
+        },
+        {
+          "name": "sss_core_program",
+          "docs": ["The sss-core program for CPI."]
+        },
+        {
+          "name": "token_program",
+          "docs": ["SPL Token program for collateral transfer."],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "token_2022_program",
+          "docs": [
+            "Token-2022 program for stablecoin (passed to sss-core CPI)."
+          ],
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "stablecoin_amount",
+          "type": "u64"
+        },
+        {
+          "name": "max_collateral",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "redeem_with_oracle",
+      "discriminator": [53, 7, 126, 57, 244, 73, 90, 129],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "oracle_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111, 114, 97, 99, 108, 101, 95, 99, 111, 110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config.stablecoin_mint",
+                "account": "OracleConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle_feed",
+          "docs": ["The Switchboard pull feed account."]
+        },
+        {
+          "name": "vault_authority",
+          "docs": ["The vault authority PDA — signs collateral release."],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118, 97, 117, 108, 116, 95, 97, 117, 116, 104, 111, 114, 105,
+                  116, 121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_vault",
+          "docs": ["Collateral vault token account."],
+          "writable": true
+        },
+        {
+          "name": "user_collateral_account",
+          "docs": ["User's collateral token account."],
+          "writable": true
+        },
+        {
+          "name": "stablecoin_mint",
+          "docs": ["The stablecoin mint (Token-2022)."],
+          "writable": true
+        },
+        {
+          "name": "user_stablecoin_account",
+          "docs": [
+            "User's stablecoin token account to burn from (Token-2022)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "docs": ["SPL Token program for collateral transfer."],
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "token_2022_program",
+          "docs": ["Token-2022 program for stablecoin burn."],
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "stablecoin_amount",
+          "type": "u64"
+        },
+        {
+          "name": "min_collateral",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_oracle_feed",
+      "discriminator": [91, 183, 142, 143, 231, 140, 227, 32],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "oracle_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111, 114, 97, 99, 108, 101, 95, 99, 111, 110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config.stablecoin_mint",
+                "account": "OracleConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_oracle_feed",
+          "docs": ["The new Switchboard pull feed account."]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_oracle_params",
+      "discriminator": [122, 139, 96, 116, 247, 150, 71, 157],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "oracle_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111, 114, 97, 99, 108, 101, 95, 99, 111, 110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config.stablecoin_mint",
+                "account": "OracleConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "UpdateOracleParamsInput"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdraw_fees",
+      "discriminator": [198, 212, 171, 109, 144, 215, 174, 89],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "oracle_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111, 114, 97, 99, 108, 101, 95, 99, 111, 110, 102, 105, 103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config.stablecoin_mint",
+                "account": "OracleConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118, 97, 117, 108, 116, 95, 97, 117, 116, 104, 111, 114, 105,
+                  116, 121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "oracle_config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collateral_vault",
+          "docs": ["Collateral vault token account."],
+          "writable": true
+        },
+        {
+          "name": "destination",
+          "docs": ["Destination token account for withdrawn fees."],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "MinterInfo",
+      "discriminator": [158, 4, 176, 199, 251, 15, 209, 131]
+    },
+    {
+      "name": "OracleConfig",
+      "discriminator": [133, 196, 152, 50, 27, 21, 145, 254]
+    },
+    {
+      "name": "StablecoinConfig",
+      "discriminator": [127, 25, 244, 213, 1, 192, 101, 6]
+    }
+  ],
+  "events": [
+    {
+      "name": "OracleFeedUpdated",
+      "discriminator": [94, 80, 36, 19, 248, 53, 181, 242]
+    },
+    {
+      "name": "OracleInitialized",
+      "discriminator": [42, 87, 109, 208, 1, 105, 101, 142]
+    },
+    {
+      "name": "OracleMint",
+      "discriminator": [143, 237, 105, 171, 54, 159, 225, 132]
+    },
+    {
+      "name": "OracleParamsUpdated",
+      "discriminator": [65, 69, 199, 128, 150, 197, 50, 11]
+    },
+    {
+      "name": "OracleRedeem",
+      "discriminator": [245, 239, 154, 129, 214, 88, 130, 236]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: caller is not the authority"
+    },
+    {
+      "code": 6001,
+      "name": "StalePriceFeed",
+      "msg": "Oracle feed returned a stale price"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidOraclePrice",
+      "msg": "Oracle feed returned an invalid or negative price"
+    },
+    {
+      "code": 6003,
+      "name": "SlippageExceeded",
+      "msg": "Slippage tolerance exceeded"
+    },
+    {
+      "code": 6004,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount: must be greater than zero"
+    },
+    {
+      "code": 6006,
+      "name": "OracleNotActive",
+      "msg": "Oracle is not active"
+    },
+    {
+      "code": 6007,
+      "name": "SpreadTooHigh",
+      "msg": "Spread exceeds maximum allowed"
+    },
+    {
+      "code": 6008,
+      "name": "InsufficientVaultBalance",
+      "msg": "Insufficient collateral in vault for redemption"
+    },
+    {
+      "code": 6009,
+      "name": "WithdrawalExceedsExcess",
+      "msg": "Withdrawal would undercollateralize the vault"
+    },
+    {
+      "code": 6010,
+      "name": "DivisionByZero",
+      "msg": "Division by zero"
+    }
+  ],
+  "types": [
+    {
+      "name": "InitializeOracleParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max_stale_slots",
+            "type": "u64"
+          },
+          {
+            "name": "min_samples",
+            "type": "u8"
+          },
+          {
+            "name": "spread_bps",
+            "type": "u16"
+          },
+          {
+            "name": "stablecoin_decimals",
+            "type": "u8"
+          },
+          {
+            "name": "collateral_decimals",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MinterInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "config",
+            "type": "pubkey"
+          },
+          {
+            "name": "minter",
+            "type": "pubkey"
+          },
+          {
+            "name": "quota",
+            "type": "u64"
+          },
+          {
+            "name": "minted",
+            "type": "u64"
+          },
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "unlimited",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": ["Admin who can update oracle settings."],
+            "type": "pubkey"
+          },
+          {
+            "name": "stablecoin_mint",
+            "docs": ["The SSS-1/SSS-2 stablecoin mint this oracle prices."],
+            "type": "pubkey"
+          },
+          {
+            "name": "collateral_mint",
+            "docs": ["Collateral token mint (e.g. USDC)."],
+            "type": "pubkey"
+          },
+          {
+            "name": "oracle_feed",
+            "docs": ["Switchboard pull feed account address."],
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "docs": [
+              "Collateral vault token account (owned by vault_authority PDA)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "sss_core_program",
+            "docs": ["The sss-core program ID for CPI."],
+            "type": "pubkey"
+          },
+          {
+            "name": "max_stale_slots",
+            "docs": [
+              "Max slots since last oracle update before price is considered stale."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "min_samples",
+            "docs": ["Minimum oracle submissions required for a valid price."],
+            "type": "u8"
+          },
+          {
+            "name": "stablecoin_decimals",
+            "docs": ["Decimals of the pegged stablecoin."],
+            "type": "u8"
+          },
+          {
+            "name": "collateral_decimals",
+            "docs": ["Decimals of the collateral token."],
+            "type": "u8"
+          },
+          {
+            "name": "spread_bps",
+            "docs": [
+              "Spread in basis points applied on mint/redeem (protocol fee)."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "is_active",
+            "docs": ["Whether minting/redeeming is active."],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": ["Canonical bump for this PDA."],
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "docs": ["Vault authority PDA bump."],
+            "type": "u8"
+          },
+          {
+            "name": "_reserved",
+            "docs": ["Reserved for future use."],
+            "type": {
+              "array": ["u8", 32]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleFeedUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "stablecoin_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_feed",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_feed",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "stablecoin_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "collateral_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "oracle_feed",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "spread_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleMint",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "stablecoin_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "stablecoin_amount",
+            "type": "u64"
+          },
+          {
+            "name": "collateral_amount",
+            "type": "u64"
+          },
+          {
+            "name": "oracle_price",
+            "type": "i128"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleParamsUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "stablecoin_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "max_stale_slots",
+            "type": "u64"
+          },
+          {
+            "name": "min_samples",
+            "type": "u8"
+          },
+          {
+            "name": "spread_bps",
+            "type": "u16"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleRedeem",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "stablecoin_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "stablecoin_amount",
+            "type": "u64"
+          },
+          {
+            "name": "collateral_amount",
+            "type": "u64"
+          },
+          {
+            "name": "oracle_price",
+            "type": "i128"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StablecoinConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          },
+          {
+            "name": "burner",
+            "type": "pubkey"
+          },
+          {
+            "name": "freezer",
+            "type": "pubkey"
+          },
+          {
+            "name": "blacklister",
+            "type": "pubkey"
+          },
+          {
+            "name": "seizer",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_authority",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "is_paused",
+            "type": "bool"
+          },
+          {
+            "name": "has_metadata",
+            "type": "bool"
+          },
+          {
+            "name": "total_minters",
+            "type": "u16"
+          },
+          {
+            "name": "enable_permanent_delegate",
+            "type": "bool"
+          },
+          {
+            "name": "enable_transfer_hook",
+            "type": "bool"
+          },
+          {
+            "name": "default_account_frozen",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "_reserved",
+            "type": {
+              "array": ["u8", 32]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateOracleParamsInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max_stale_slots",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "min_samples",
+            "type": {
+              "option": "u8"
+            }
+          },
+          {
+            "name": "spread_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "is_active",
+            "type": {
+              "option": "bool"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

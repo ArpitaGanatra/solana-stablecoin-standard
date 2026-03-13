@@ -17,6 +17,7 @@ import { registerRolesCommand } from "./commands/roles";
 import { registerHoldersCommand } from "./commands/holders";
 import { registerAuditLogCommand } from "./commands/audit-log";
 import { registerTuiCommand } from "./commands/tui";
+import { registerOracleCommand } from "./commands/oracle";
 
 const program = new Command();
 
@@ -48,5 +49,8 @@ registerAuditLogCommand(program);
 
 // Interactive TUI
 registerTuiCommand(program);
+
+// Oracle module
+registerOracleCommand(program);
 
 program.parse();

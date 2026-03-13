@@ -1,0 +1,29 @@
+[package]
+name = "sss-oracle"
+version = "0.1.0"
+description = "Oracle integration module for SSS stablecoins — Switchboard price feeds for non-USD pegs"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "sss_oracle"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+anchor-lang = { version = "0.32.1", features = ["init-if-needed"] }
+anchor-spl = { version = "0.32.1", features = ["token_2022"] }
+sss-core = { path = "../sss-core", features = ["cpi"] }
+switchboard-on-demand = "0.11"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

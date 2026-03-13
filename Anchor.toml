@@ -8,10 +8,12 @@ skip-lint = false
 [programs.localnet]
 sss-transfer-hook = "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9"
 sss_core = "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb"
+sss_oracle = "GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH"
 
 [programs.devnet]
 sss-transfer-hook = "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9"
 sss_core = "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb"
+sss_oracle = "GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH"
 
 [registry]
 url = "https://api.apr.dev"
