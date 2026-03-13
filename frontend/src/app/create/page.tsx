@@ -26,11 +26,13 @@ type Preset = "sss1" | "sss2" | "custom";
 const PRESETS: Record<Preset, { label: string; description: string }> = {
   sss1: {
     label: "SSS-1 (Minimal)",
-    description: "Mint, freeze, metadata — no transfer hooks or permanent delegate",
+    description:
+      "Mint, freeze, metadata — no transfer hooks or permanent delegate",
   },
   sss2: {
     label: "SSS-2 (Compliant)",
-    description: "Full compliance: blacklist, seize, transfer hooks, permanent delegate, default frozen",
+    description:
+      "Full compliance: blacklist, seize, transfer hooks, permanent delegate, default frozen",
   },
   custom: {
     label: "Custom",
@@ -52,7 +54,9 @@ export default function CreateTokenPage() {
   const [enablePermanentDelegate, setEnablePermanentDelegate] = useState(false);
   const [enableTransferHook, setEnableTransferHook] = useState(false);
   const [defaultAccountFrozen, setDefaultAccountFrozen] = useState(false);
-  const [additionalMetadata, setAdditionalMetadata] = useState<{ key: string; value: string }[]>([]);
+  const [additionalMetadata, setAdditionalMetadata] = useState<
+    { key: string; value: string }[]
+  >([]);
 
   const [txSig, setTxSig] = useState<string | null>(null);
   const [txError, setTxError] = useState<string | null>(null);
@@ -82,7 +86,11 @@ export default function CreateTokenPage() {
     setAdditionalMetadata(additionalMetadata.filter((_, i) => i !== index));
   };
 
-  const updateMetadataField = (index: number, field: "key" | "value", val: string) => {
+  const updateMetadataField = (
+    index: number,
+    field: "key" | "value",
+    val: string
+  ) => {
     const updated = [...additionalMetadata];
     updated[index][field] = val;
     setAdditionalMetadata(updated);
@@ -125,7 +133,9 @@ export default function CreateTokenPage() {
         enablePermanentDelegate,
         enableTransferHook,
         defaultAccountFrozen,
-        transferHookProgramId: enableTransferHook ? SSS_TRANSFER_HOOK_PROGRAM_ID : null,
+        transferHookProgramId: enableTransferHook
+          ? SSS_TRANSFER_HOOK_PROGRAM_ID
+          : null,
       };
 
       const sig = await program.methods
@@ -293,7 +303,8 @@ export default function CreateTokenPage() {
       >
         {additionalMetadata.length === 0 ? (
           <p className="text-sm text-text-tertiary">
-            No additional metadata fields. Click &quot;+ Add Field&quot; to add key-value pairs.
+            No additional metadata fields. Click &quot;+ Add Field&quot; to add
+            key-value pairs.
           </p>
         ) : (
           <div className="space-y-3">
@@ -302,14 +313,18 @@ export default function CreateTokenPage() {
                 <input
                   type="text"
                   value={field.key}
-                  onChange={(e) => updateMetadataField(i, "key", e.target.value)}
+                  onChange={(e) =>
+                    updateMetadataField(i, "key", e.target.value)
+                  }
                   placeholder="Key"
                   className="flex-1 bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
                 />
                 <input
                   type="text"
                   value={field.value}
-                  onChange={(e) => updateMetadataField(i, "value", e.target.value)}
+                  onChange={(e) =>
+                    updateMetadataField(i, "value", e.target.value)
+                  }
                   placeholder="Value"
                   className="flex-1 bg-bg-primary border border-border-default rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent"
                 />
@@ -317,8 +332,18 @@ export default function CreateTokenPage() {
                   onClick={() => removeMetadataField(i)}
                   className="text-text-tertiary hover:text-danger transition-colors p-1"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -335,13 +360,24 @@ export default function CreateTokenPage() {
           <SummaryRow label="Decimals" value={decimals} />
           <SummaryRow label="Preset" value={PRESETS[preset].label} />
           <SummaryRow label="Metadata" value={enableMetadata ? "Yes" : "No"} />
-          <SummaryRow label="Permanent Delegate" value={enablePermanentDelegate ? "Yes" : "No"} />
-          <SummaryRow label="Transfer Hook" value={enableTransferHook ? "Yes" : "No"} />
-          <SummaryRow label="Default Frozen" value={defaultAccountFrozen ? "Yes" : "No"} />
+          <SummaryRow
+            label="Permanent Delegate"
+            value={enablePermanentDelegate ? "Yes" : "No"}
+          />
+          <SummaryRow
+            label="Transfer Hook"
+            value={enableTransferHook ? "Yes" : "No"}
+          />
+          <SummaryRow
+            label="Default Frozen"
+            value={defaultAccountFrozen ? "Yes" : "No"}
+          />
           {additionalMetadata.filter((m) => m.key).length > 0 && (
             <SummaryRow
               label="Extra Metadata"
-              value={`${additionalMetadata.filter((m) => m.key).length} field(s)`}
+              value={`${
+                additionalMetadata.filter((m) => m.key).length
+              } field(s)`}
             />
           )}
         </div>
@@ -356,8 +392,12 @@ export default function CreateTokenPage() {
 
         {createdMint && (
           <div className="mt-4 p-3 bg-accent/5 border border-accent/20 rounded-lg">
-            <p className="text-xs text-text-secondary mb-1">Created Mint Address</p>
-            <p className="font-mono text-sm text-accent break-all">{createdMint}</p>
+            <p className="text-xs text-text-secondary mb-1">
+              Created Mint Address
+            </p>
+            <p className="font-mono text-sm text-accent break-all">
+              {createdMint}
+            </p>
           </div>
         )}
       </Card>
@@ -389,7 +429,9 @@ function Toggle({
 }) {
   return (
     <div
-      className={`flex items-center justify-between py-2 ${disabled ? "opacity-60" : ""}`}
+      className={`flex items-center justify-between py-2 ${
+        disabled ? "opacity-60" : ""
+      }`}
     >
       <div className="flex-1 mr-4">
         <p className="text-sm text-text-primary font-medium">{label}</p>

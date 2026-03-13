@@ -80,6 +80,71 @@ body {
 .wallet-adapter-modal-wrapper {
   background-color: var(--bg-card) !important;
   border: 1px solid var(--border-default) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6) !important;
+}
+
+.wallet-adapter-modal-title {
+  color: var(--text-primary) !important;
+  font-family: var(--font-heading) !important;
+  font-weight: 600 !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background-color: var(--bg-elevated) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 12px !important;
+  color: var(--text-primary) !important;
+  padding: 10px 16px !important;
+  margin-bottom: 4px !important;
+  transition: all 0.15s ease !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background-color: var(--bg-card) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.06) !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button-end-icon {
+  color: var(--text-tertiary) !important;
+  font-size: 12px !important;
+}
+
+.wallet-adapter-modal-button-close {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-tertiary) !important;
+  transition: all 0.15s ease !important;
+}
+
+.wallet-adapter-modal-button-close:hover {
+  background-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
+}
+
+.wallet-adapter-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.wallet-adapter-modal-list li {
+  margin-bottom: 4px !important;
+}
+
+.wallet-adapter-collapse {
+  background-color: transparent !important;
+}
+
+.wallet-adapter-modal-list-more .wallet-adapter-button {
+  color: var(--accent) !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.wallet-adapter-modal-list-more .wallet-adapter-button:hover {
+  color: var(--accent-hover) !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Grain overlay */
