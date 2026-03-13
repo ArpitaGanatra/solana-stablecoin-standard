@@ -29,11 +29,6 @@ export default function TxResult({ signature, error, onClear }: TxResultProps) {
           onClick: () => window.open(explorerUrl, "_blank"),
         },
         duration: 8000,
-        style: {
-          background: "#111111",
-          border: "1px solid rgba(74, 222, 128, 0.2)",
-          boxShadow: "0 0 20px rgba(74, 222, 128, 0.08)",
-        },
       });
       onClear();
     }

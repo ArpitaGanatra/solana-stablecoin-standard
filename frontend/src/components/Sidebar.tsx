@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: "grid" },
+  { href: "/create", label: "Create Token", icon: "plus" },
   { href: "/mint", label: "Mint / Burn", icon: "coins" },
   { href: "/freeze", label: "Freeze / Thaw", icon: "snowflake" },
   { href: "/minters", label: "Minters", icon: "users" },
@@ -14,6 +15,21 @@ const NAV_ITEMS = [
 ];
 
 const ICONS: Record<string, ReactNode> = {
+  plus: (
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 4v16m8-8H4"
+      />
+    </svg>
+  ),
   grid: (
     <svg
       className="w-5 h-5"
