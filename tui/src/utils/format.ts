@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { BN } from "@coral-xyz/anchor";
+import BN from "bn.js";
 
 export function formatAmount(amount: BN, decimals: number): string {
   const str = amount.toString().padStart(decimals + 1, "0");

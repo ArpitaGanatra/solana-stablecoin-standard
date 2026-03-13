@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Box, Text, useInput } from "ink";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { Program, BN } from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
+import BN from "bn.js";
 import { SolanaStablecoin, StablecoinConfig } from "@stbr/sss-token";
 import { parseAmount } from "../utils/format.js";
 

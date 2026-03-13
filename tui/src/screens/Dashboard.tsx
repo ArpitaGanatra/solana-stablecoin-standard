@@ -3,7 +3,7 @@ import { Box, Text } from "ink";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { StablecoinState } from "../hooks/useStablecoinState.js";
 import { formatAmount, shortenAddress } from "../utils/format.js";
-import { BN } from "@coral-xyz/anchor";
+import BN from "bn.js";
 
 interface DashboardProps {
   state: StablecoinState;
@@ -28,14 +28,14 @@ function RoleRow({ label, address }: { label: string; address: PublicKey }) {
 function FeatureFlag({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <Text>
-      <Text color={enabled ? "green" : "gray"}>{enabled ? "[x]" : "[ ]"}</Text>{" "}
+      <Text color={enabled ? "green" : "red"}>{enabled ? " ✓ " : " ✗ "}</Text>{" "}
       <Text>{label}</Text>
     </Text>
   );
 }
 
 export function Dashboard({ state, decimals, keypair }: DashboardProps) {
-  const { config, supply, holders, minters, loading } = state;
+  const { config, supply, metadata, holders, minters, loading } = state;
 
   if (loading && !config) {
     return <Text color="yellow">Loading stablecoin data...</Text>;
@@ -72,6 +72,30 @@ export function Dashboard({ state, decimals, keypair }: DashboardProps) {
               </Box>
               <Text color="white">{shortenAddress(config.mint)}</Text>
             </Box>
+            {metadata && (
+              <>
+                <Box>
+                  <Box width={16}>
+                    <Text dimColor>Name:</Text>
+                  </Box>
+                  <Text color="white">
+                    {metadata.name} ({metadata.symbol})
+                  </Text>
+                </Box>
+                {metadata.uri && (
+                  <Box>
+                    <Box width={16}>
+                      <Text dimColor>URI:</Text>
+                    </Box>
+                    <Text dimColor>
+                      {metadata.uri.length > 40
+                        ? metadata.uri.slice(0, 40) + "..."
+                        : metadata.uri}
+                    </Text>
+                  </Box>
+                )}
+              </>
+            )}
             <Box>
               <Box width={16}>
                 <Text dimColor>Paused:</Text>

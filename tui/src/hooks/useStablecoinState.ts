@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Connection, PublicKey, Keypair } from "@solana/web3.js";
-import { Program, BN } from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
+import BN from "bn.js";
 import {
   TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
   getMint,
+  getTokenMetadata as fetchTokenMetadata,
 } from "@solana/spl-token";
 import {
   StablecoinConfig,
@@ -19,9 +21,16 @@ export interface TokenHolder {
   balance: BN;
 }
 
+export interface TokenMetadata {
+  name: string;
+  symbol: string;
+  uri: string;
+}
+
 export interface StablecoinState {
   config: StablecoinConfig | null;
   supply: BN | null;
+  metadata: TokenMetadata | null;
   holders: TokenHolder[];
   minters: MinterInfo[];
   loading: boolean;
@@ -40,6 +49,7 @@ export function useStablecoinState(
 ): StablecoinState {
   const [config, setConfig] = useState<StablecoinConfig | null>(null);
   const [supply, setSupply] = useState<BN | null>(null);
+  const [metadata, setMetadata] = useState<TokenMetadata | null>(null);
   const [holders, setHolders] = useState<TokenHolder[]>([]);
   const [minters, setMinters] = useState<MinterInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +78,24 @@ export function useStablecoinState(
       );
       if (!isMounted.current) return;
       setSupply(new BN(mintInfo.supply.toString()));
+
+      // Fetch token metadata
+      if (cfg.hasMetadata) {
+        const meta = await fetchTokenMetadata(
+          connection,
+          mint,
+          "confirmed",
+          TOKEN_2022_PROGRAM_ID
+        ).catch(() => null);
+        if (!isMounted.current) return;
+        if (meta) {
+          setMetadata({
+            name: meta.name,
+            symbol: meta.symbol,
+            uri: meta.uri,
+          });
+        }
+      }
 
       // Fetch token accounts (holders)
       const tokenAccounts = await connection
@@ -137,6 +165,7 @@ export function useStablecoinState(
   return {
     config,
     supply,
+    metadata,
     holders,
     minters,
     loading,
