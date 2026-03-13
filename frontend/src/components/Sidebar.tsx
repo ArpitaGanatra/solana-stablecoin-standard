@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/compliance", label: "Compliance", icon: "lock" },
   { href: "/transfer", label: "Transfer", icon: "send" },
   { href: "/holders", label: "Holders", icon: "list" },
+  { href: "/oracle", label: "Oracle", icon: "clock" },
 ];
 
 const ICONS: Record<string, ReactNode> = {

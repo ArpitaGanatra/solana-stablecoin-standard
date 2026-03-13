@@ -16,6 +16,7 @@ import { WebhookService } from "./services/webhook";
 import { operationsRouter } from "./routes/operations";
 import { statusRouter } from "./routes/status";
 import { complianceRouter } from "./routes/compliance";
+import { oracleRouter } from "./routes/oracle";
 
 async function main() {
   const config = loadConfig();
@@ -140,6 +141,10 @@ async function main() {
   app.use(
     "/api/compliance",
     complianceRouter(complianceService, webhookService, logger)
+  );
+  app.use(
+    "/api/oracle",
+    oracleRouter(connection, program, authority, mint, logger)
   );
 
   // Error handler

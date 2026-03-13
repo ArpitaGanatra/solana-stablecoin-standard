@@ -55,9 +55,7 @@ export default function HoldersPage() {
       for (let i = 0; i < largest.value.length; i += batchSize) {
         const batch = largest.value.slice(i, i + batchSize);
         const results = await Promise.all(
-          batch.map((acct) =>
-            connection.getParsedAccountInfo(acct.address)
-          )
+          batch.map((acct) => connection.getParsedAccountInfo(acct.address))
         );
 
         for (let j = 0; j < batch.length; j++) {

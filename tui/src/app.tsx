@@ -12,6 +12,7 @@ import { MintersScreen } from "./screens/Minters.js";
 import { HoldersScreen } from "./screens/Holders.js";
 import { ComplianceScreen } from "./screens/Compliance.js";
 import { EventsScreen } from "./screens/Events.js";
+import { OracleScreen } from "./screens/Oracle.js";
 import {
   OperationDialog,
   OperationType,
@@ -29,7 +30,7 @@ interface AppProps {
   hookProgramId?: string;
 }
 
-type Tab = "dashboard" | "minters" | "holders" | "compliance" | "events";
+type Tab = "dashboard" | "minters" | "holders" | "compliance" | "events" | "oracle";
 
 const TABS: { key: string; label: string; tab: Tab }[] = [
   { key: "1", label: "Dashboard", tab: "dashboard" },
@@ -37,6 +38,7 @@ const TABS: { key: string; label: string; tab: Tab }[] = [
   { key: "3", label: "Holders", tab: "holders" },
   { key: "4", label: "Compliance", tab: "compliance" },
   { key: "5", label: "Events", tab: "events" },
+  { key: "6", label: "Oracle", tab: "oracle" },
 ];
 
 export function App({
@@ -135,7 +137,7 @@ export function App({
         ))}
         <Box flexGrow={1} />
         <Text dimColor>
-          q:quit r:refresh m:mint b:burn f:freeze t:thaw p:pause
+          q:quit r:refresh m:mint b:burn f:freeze t:thaw p:pause 6:oracle
         </Text>
       </Box>
 
@@ -181,6 +183,14 @@ export function App({
             auditLoading={audit.loading}
             auditError={audit.error}
             onAuditRefresh={audit.refresh}
+          />
+        )}
+        {activeTab === "oracle" && (
+          <OracleScreen
+            connection={connection}
+            keypair={keypair}
+            mintAddress={mintAddress}
+            decimals={decimals}
           />
         )}
       </Box>
