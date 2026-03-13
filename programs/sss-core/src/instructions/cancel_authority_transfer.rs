@@ -14,6 +14,7 @@ pub struct CancelAuthorityTransfer<'info> {
         seeds = [CONFIG_SEED, config.mint.as_ref()],
         bump = config.bump,
         has_one = authority @ SssError::InvalidAuthority,
+        constraint = !config.is_paused @ SssError::Paused,
     )]
     pub config: Account<'info, StablecoinConfig>,
 }

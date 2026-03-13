@@ -5,10 +5,12 @@ import os from "os";
 import path from "path";
 
 const SSS_CORE_PROGRAM_ID = new PublicKey(
-  "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb"
+  process.env.SSS_CORE_PROGRAM_ID ||
+    "4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb"
 );
 const SSS_HOOK_PROGRAM_ID = new PublicKey(
-  "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9"
+  process.env.SSS_HOOK_PROGRAM_ID ||
+    "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9"
 );
 
 export { SSS_CORE_PROGRAM_ID, SSS_HOOK_PROGRAM_ID };

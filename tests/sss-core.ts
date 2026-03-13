@@ -14,6 +14,7 @@ import {
   getAssociatedTokenAddressSync,
   createAssociatedTokenAccountInstruction,
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  transferChecked,
 } from "@solana/spl-token";
 
 const CONFIG_SEED = Buffer.from("stablecoin_config");
@@ -185,7 +186,7 @@ describe("sss-core", () => {
             defaultAccountFrozen: false,
             transferHookProgramId: null,
           })
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             mint: sss1Mint.publicKey,
             config: sss1Config,
@@ -237,7 +238,7 @@ describe("sss-core", () => {
               defaultAccountFrozen: false,
               transferHookProgramId: null,
             })
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               mint: badMint.publicKey,
               config: badConfig,
@@ -270,7 +271,7 @@ describe("sss-core", () => {
               defaultAccountFrozen: false,
               transferHookProgramId: null,
             })
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               mint: badMint.publicKey,
               config: badConfig,
@@ -303,7 +304,7 @@ describe("sss-core", () => {
               defaultAccountFrozen: false,
               transferHookProgramId: null,
             })
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               mint: badMint.publicKey,
               config: badConfig,
@@ -338,7 +339,7 @@ describe("sss-core", () => {
             defaultAccountFrozen: false,
             transferHookProgramId: null,
           })
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             mint: noMetaMint.publicKey,
             config: noMetaConfig,
@@ -366,7 +367,7 @@ describe("sss-core", () => {
 
         await program.methods
           .addMinter(minterKp.publicKey, new anchor.BN(1_000_000), false)
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
             minterInfo: minterPda,
@@ -397,7 +398,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .addMinter(unauthorizedKp.publicKey, new anchor.BN(1000), false)
-            .accounts({
+            .accountsPartial({
               authority: unauthorizedKp.publicKey,
               config: sss1Config,
               minterInfo: minterPda,
@@ -422,7 +423,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .addMinter(tempMinter.publicKey, new anchor.BN(1000), true)
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               config: sss1Config,
               minterInfo: minterPda,
@@ -455,7 +456,7 @@ describe("sss-core", () => {
 
         await program.methods
           .mintTokens(new anchor.BN(500_000))
-          .accounts({
+          .accountsPartial({
             minter: minterKp.publicKey,
             config: sss1Config,
             minterInfo: minterPda,
@@ -480,7 +481,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .mintTokens(new anchor.BN(600_000)) // 500k already minted + 600k > 1M quota
-            .accounts({
+            .accountsPartial({
               minter: minterKp.publicKey,
               config: sss1Config,
               minterInfo: minterPda,
@@ -506,7 +507,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .mintTokens(new anchor.BN(0))
-            .accounts({
+            .accountsPartial({
               minter: minterKp.publicKey,
               config: sss1Config,
               minterInfo: minterPda,
@@ -538,7 +539,7 @@ describe("sss-core", () => {
             true,
             false
           )
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
             minterInfo: minterPda,
@@ -564,7 +565,7 @@ describe("sss-core", () => {
             false,
             false
           )
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
             minterInfo: minterPda,
@@ -574,7 +575,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .mintTokens(new anchor.BN(100))
-            .accounts({
+            .accountsPartial({
               minter: minterKp.publicKey,
               config: sss1Config,
               minterInfo: minterPda,
@@ -597,7 +598,7 @@ describe("sss-core", () => {
             true,
             false
           )
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
             minterInfo: minterPda,
@@ -626,7 +627,7 @@ describe("sss-core", () => {
 
         await program.methods
           .addMinter(authority.publicKey, new anchor.BN(0), true)
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
             minterInfo: tempMinterPda,
@@ -636,7 +637,7 @@ describe("sss-core", () => {
 
         await program.methods
           .mintTokens(new anchor.BN(1_000_000))
-          .accounts({
+          .accountsPartial({
             minter: authority.publicKey,
             config: sss1Config,
             minterInfo: tempMinterPda,
@@ -650,7 +651,7 @@ describe("sss-core", () => {
       it("burns tokens (SSS-1: burner burns own tokens)", async () => {
         await program.methods
           .burnTokens(new anchor.BN(100_000))
-          .accounts({
+          .accountsPartial({
             burner: authority.publicKey,
             config: sss1Config,
             mint: sss1Mint.publicKey,
@@ -664,7 +665,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .burnTokens(new anchor.BN(0))
-            .accounts({
+            .accountsPartial({
               burner: authority.publicKey,
               config: sss1Config,
               mint: sss1Mint.publicKey,
@@ -682,7 +683,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .burnTokens(new anchor.BN(1000))
-            .accounts({
+            .accountsPartial({
               burner: unauthorizedKp.publicKey,
               config: sss1Config,
               mint: sss1Mint.publicKey,
@@ -702,7 +703,7 @@ describe("sss-core", () => {
       it("freezes a token account", async () => {
         await program.methods
           .freezeAccount()
-          .accounts({
+          .accountsPartial({
             freezer: authority.publicKey,
             config: sss1Config,
             mint: sss1Mint.publicKey,
@@ -717,7 +718,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .freezeAccount()
-            .accounts({
+            .accountsPartial({
               freezer: unauthorizedKp.publicKey,
               config: sss1Config,
               mint: sss1Mint.publicKey,
@@ -735,7 +736,7 @@ describe("sss-core", () => {
       it("thaws a frozen token account", async () => {
         await program.methods
           .thawAccount()
-          .accounts({
+          .accountsPartial({
             freezer: authority.publicKey,
             config: sss1Config,
             mint: sss1Mint.publicKey,
@@ -750,7 +751,7 @@ describe("sss-core", () => {
       it("pauses the stablecoin", async () => {
         await program.methods
           .pause()
-          .accounts({
+          .accountsPartial({
             pauser: authority.publicKey,
             config: sss1Config,
           })
@@ -764,7 +765,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .pause()
-            .accounts({
+            .accountsPartial({
               pauser: authority.publicKey,
               config: sss1Config,
             })
@@ -785,7 +786,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .mintTokens(new anchor.BN(100))
-            .accounts({
+            .accountsPartial({
               minter: minterKp.publicKey,
               config: sss1Config,
               minterInfo: minterPda,
@@ -805,7 +806,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .freezeAccount()
-            .accounts({
+            .accountsPartial({
               freezer: authority.publicKey,
               config: sss1Config,
               mint: sss1Mint.publicKey,
@@ -831,7 +832,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .burnTokens(new anchor.BN(100))
-            .accounts({
+            .accountsPartial({
               burner: authority.publicKey,
               config: sss1Config,
               mint: sss1Mint.publicKey,
@@ -849,7 +850,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .unpause()
-            .accounts({
+            .accountsPartial({
               pauser: unauthorizedKp.publicKey,
               config: sss1Config,
             })
@@ -864,7 +865,7 @@ describe("sss-core", () => {
       it("unpauses the stablecoin", async () => {
         await program.methods
           .unpause()
-          .accounts({
+          .accountsPartial({
             pauser: authority.publicKey,
             config: sss1Config,
           })
@@ -878,7 +879,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .unpause()
-            .accounts({
+            .accountsPartial({
               pauser: authority.publicKey,
               config: sss1Config,
             })
@@ -900,7 +901,7 @@ describe("sss-core", () => {
             newBlacklister: null,
             newSeizer: null,
           })
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
           })
@@ -915,7 +916,7 @@ describe("sss-core", () => {
       it("updated pauser can pause", async () => {
         await program.methods
           .pause()
-          .accounts({
+          .accountsPartial({
             pauser: pauserKp.publicKey,
             config: sss1Config,
           })
@@ -928,7 +929,7 @@ describe("sss-core", () => {
         // Unpause for later tests
         await program.methods
           .unpause()
-          .accounts({
+          .accountsPartial({
             pauser: pauserKp.publicKey,
             config: sss1Config,
           })
@@ -940,7 +941,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .pause()
-            .accounts({
+            .accountsPartial({
               pauser: authority.publicKey,
               config: sss1Config,
             })
@@ -960,7 +961,7 @@ describe("sss-core", () => {
             newBlacklister: blacklisterKp.publicKey,
             newSeizer: seizerKp.publicKey,
           })
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
           })
@@ -991,7 +992,7 @@ describe("sss-core", () => {
               newBlacklister: null,
               newSeizer: null,
             })
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               config: sss1Config,
             })
@@ -1012,7 +1013,7 @@ describe("sss-core", () => {
               newBlacklister: null,
               newSeizer: null,
             })
-            .accounts({
+            .accountsPartial({
               authority: unauthorizedKp.publicKey,
               config: sss1Config,
             })
@@ -1029,7 +1030,7 @@ describe("sss-core", () => {
       it("proposes authority transfer", async () => {
         await program.methods
           .transferAuthority(newAuthorityKp.publicKey)
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
           })
@@ -1061,7 +1062,7 @@ describe("sss-core", () => {
             defaultAccountFrozen: false,
             transferHookProgramId: null,
           })
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             mint: freshMint.publicKey,
             config: freshConfig,
@@ -1074,7 +1075,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .transferAuthority(authority.publicKey)
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               config: freshConfig,
             })
@@ -1088,7 +1089,7 @@ describe("sss-core", () => {
       it("cancels authority transfer", async () => {
         await program.methods
           .cancelAuthorityTransfer()
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
           })
@@ -1102,7 +1103,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .cancelAuthorityTransfer()
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               config: sss1Config,
             })
@@ -1117,7 +1118,7 @@ describe("sss-core", () => {
         // Propose
         await program.methods
           .transferAuthority(newAuthorityKp.publicKey)
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
           })
@@ -1126,7 +1127,7 @@ describe("sss-core", () => {
         // Accept
         await program.methods
           .acceptAuthority()
-          .accounts({
+          .accountsPartial({
             newAuthority: newAuthorityKp.publicKey,
             config: sss1Config,
           })
@@ -1144,7 +1145,7 @@ describe("sss-core", () => {
         // Transfer authority back: propose from newAuthority
         await program.methods
           .transferAuthority(authority.publicKey)
-          .accounts({
+          .accountsPartial({
             authority: newAuthorityKp.publicKey,
             config: sss1Config,
           })
@@ -1154,7 +1155,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .acceptAuthority()
-            .accounts({
+            .accountsPartial({
               newAuthority: unauthorizedKp.publicKey,
               config: sss1Config,
             })
@@ -1168,7 +1169,7 @@ describe("sss-core", () => {
         // Accept it properly to restore authority
         await program.methods
           .acceptAuthority()
-          .accounts({
+          .accountsPartial({
             newAuthority: authority.publicKey,
             config: sss1Config,
           })
@@ -1187,7 +1188,7 @@ describe("sss-core", () => {
 
         await program.methods
           .addMinter(tempMinter.publicKey, new anchor.BN(1000), false)
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
             minterInfo: tempMinterPda,
@@ -1202,7 +1203,7 @@ describe("sss-core", () => {
 
         await program.methods
           .removeMinter(tempMinter.publicKey)
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss1Config,
             minterInfo: tempMinterPda,
@@ -1243,7 +1244,7 @@ describe("sss-core", () => {
             defaultAccountFrozen: false,
             transferHookProgramId: hookProgram.programId,
           })
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             mint: sss2Mint.publicKey,
             config: sss2Config,
@@ -1278,7 +1279,7 @@ describe("sss-core", () => {
               defaultAccountFrozen: false,
               transferHookProgramId: null,
             })
-            .accounts({
+            .accountsPartial({
               authority: authority.publicKey,
               mint: badMint.publicKey,
               config: badConfig,
@@ -1307,7 +1308,7 @@ describe("sss-core", () => {
             newBlacklister: blacklisterKp.publicKey,
             newSeizer: seizerKp.publicKey,
           })
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss2Config,
           })
@@ -1323,7 +1324,7 @@ describe("sss-core", () => {
 
         await program.methods
           .blacklistAddress(blacklistTarget.publicKey)
-          .accounts({
+          .accountsPartial({
             blacklister: blacklisterKp.publicKey,
             config: sss2Config,
             blacklistEntry: blacklistPda,
@@ -1350,7 +1351,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .blacklistAddress(target2.publicKey)
-            .accounts({
+            .accountsPartial({
               blacklister: unauthorizedKp.publicKey,
               config: sss2Config,
               blacklistEntry: blacklistPda,
@@ -1373,7 +1374,7 @@ describe("sss-core", () => {
 
         await program.methods
           .removeFromBlacklist(blacklistTarget.publicKey)
-          .accounts({
+          .accountsPartial({
             blacklister: blacklisterKp.publicKey,
             config: sss2Config,
             blacklistEntry: blacklistPda,
@@ -1399,7 +1400,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .blacklistAddress(target.publicKey)
-            .accounts({
+            .accountsPartial({
               blacklister: blacklisterKp.publicKey,
               config: sss1Config,
               blacklistEntry: blacklistPda,
@@ -1441,7 +1442,7 @@ describe("sss-core", () => {
 
         await program.methods
           .addMinter(authority.publicKey, new anchor.BN(0), true)
-          .accounts({
+          .accountsPartial({
             authority: authority.publicKey,
             config: sss2Config,
             minterInfo: minterPda,
@@ -1457,7 +1458,7 @@ describe("sss-core", () => {
 
         await hookProgram.methods
           .initializeExtraAccountMetaList()
-          .accounts({
+          .accountsPartial({
             payer: authority.publicKey,
             extraAccountMetaList: extraMetaList,
             mint: sss2Mint.publicKey,
@@ -1467,7 +1468,7 @@ describe("sss-core", () => {
 
         await program.methods
           .mintTokens(new anchor.BN(1_000_000))
-          .accounts({
+          .accountsPartial({
             minter: authority.publicKey,
             config: sss2Config,
             minterInfo: minterPda,
@@ -1490,7 +1491,7 @@ describe("sss-core", () => {
 
         await program.methods
           .seize(new anchor.BN(500_000))
-          .accounts({
+          .accountsPartial({
             seizer: seizerKp.publicKey,
             config: sss2Config,
             mint: sss2Mint.publicKey,
@@ -1507,7 +1508,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .seize(new anchor.BN(0))
-            .accounts({
+            .accountsPartial({
               seizer: seizerKp.publicKey,
               config: sss2Config,
               mint: sss2Mint.publicKey,
@@ -1527,7 +1528,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .seize(new anchor.BN(1000))
-            .accounts({
+            .accountsPartial({
               seizer: unauthorizedKp.publicKey,
               config: sss2Config,
               mint: sss2Mint.publicKey,
@@ -1549,7 +1550,7 @@ describe("sss-core", () => {
         try {
           await program.methods
             .seize(new anchor.BN(1000))
-            .accounts({
+            .accountsPartial({
               seizer: seizerKp.publicKey,
               config: sss1Config,
               mint: sss1Mint.publicKey,
@@ -1571,7 +1572,7 @@ describe("sss-core", () => {
         // treasuryAta has 500k tokens from the seize test
         await program.methods
           .burnTokens(new anchor.BN(100_000))
-          .accounts({
+          .accountsPartial({
             burner: authority.publicKey,
             config: sss2Config,
             mint: sss2Mint.publicKey,
@@ -1597,7 +1598,7 @@ describe("sss-core", () => {
       // Mint
       await program.methods
         .mintTokens(new anchor.BN(100_000))
-        .accounts({
+        .accountsPartial({
           minter: minterKp.publicKey,
           config: sss1Config,
           minterInfo: minterPda,
@@ -1611,7 +1612,7 @@ describe("sss-core", () => {
       // Freeze (using updated freezer role)
       await program.methods
         .freezeAccount()
-        .accounts({
+        .accountsPartial({
           freezer: freezerKp.publicKey,
           config: sss1Config,
           mint: sss1Mint.publicKey,
@@ -1624,7 +1625,7 @@ describe("sss-core", () => {
       // Thaw
       await program.methods
         .thawAccount()
-        .accounts({
+        .accountsPartial({
           freezer: freezerKp.publicKey,
           config: sss1Config,
           mint: sss1Mint.publicKey,
@@ -1665,7 +1666,7 @@ describe("sss-core", () => {
       // 1. Mint tokens to target
       await program.methods
         .mintTokens(new anchor.BN(1_000_000))
-        .accounts({
+        .accountsPartial({
           minter: authority.publicKey,
           config: sss2Config,
           minterInfo: minterPda,
@@ -1684,7 +1685,7 @@ describe("sss-core", () => {
 
       await program.methods
         .blacklistAddress(integTarget.publicKey)
-        .accounts({
+        .accountsPartial({
           blacklister: blacklisterKp.publicKey,
           config: sss2Config,
           blacklistEntry: blacklistPda,
@@ -1711,7 +1712,7 @@ describe("sss-core", () => {
 
       await program.methods
         .seize(new anchor.BN(1_000_000))
-        .accounts({
+        .accountsPartial({
           seizer: seizerKp.publicKey,
           config: sss2Config,
           mint: sss2Mint.publicKey,
@@ -1726,7 +1727,7 @@ describe("sss-core", () => {
       // 4. Remove from blacklist
       await program.methods
         .removeFromBlacklist(integTarget.publicKey)
-        .accounts({
+        .accountsPartial({
           blacklister: blacklisterKp.publicKey,
           config: sss2Config,
           blacklistEntry: blacklistPda,
@@ -1737,6 +1738,197 @@ describe("sss-core", () => {
       // Verify blacklist entry is closed
       const account = await connection.getAccountInfo(blacklistPda);
       expect(account).to.be.null;
+    });
+  });
+
+  // =========================================================================
+  // Transfer Hook E2E: verify blacklist enforcement on actual transfers
+  // =========================================================================
+  describe("Transfer Hook E2E: blacklist enforcement on transfers", () => {
+    let sender: Keypair;
+    let receiver: Keypair;
+    let senderAta: PublicKey;
+    let receiverAta: PublicKey;
+
+    before(async () => {
+      sender = Keypair.generate();
+      receiver = Keypair.generate();
+      await Promise.all([
+        airdrop(connection, sender.publicKey),
+        airdrop(connection, receiver.publicKey),
+      ]);
+
+      senderAta = await createAta(
+        connection,
+        (authority as any).payer,
+        sss2Mint.publicKey,
+        sender.publicKey
+      );
+      receiverAta = await createAta(
+        connection,
+        (authority as any).payer,
+        sss2Mint.publicKey,
+        receiver.publicKey
+      );
+
+      // Mint tokens to sender
+      const [minterPda] = findMinterPda(
+        sss2Config,
+        authority.publicKey,
+        program.programId
+      );
+      await program.methods
+        .mintTokens(new anchor.BN(1_000_000))
+        .accountsPartial({
+          minter: authority.publicKey,
+          config: sss2Config,
+          minterInfo: minterPda,
+          mint: sss2Mint.publicKey,
+          tokenAccount: senderAta,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .rpc();
+    });
+
+    it("allows transfer between non-blacklisted accounts", async () => {
+      await transferChecked(
+        connection,
+        sender,
+        senderAta,
+        sss2Mint.publicKey,
+        receiverAta,
+        sender,
+        100_000,
+        6,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+    });
+
+    it("blocks transfer when destination is blacklisted", async () => {
+      const [blacklistPda] = findBlacklistPda(
+        sss2Config,
+        receiver.publicKey,
+        program.programId
+      );
+
+      // Blacklist the receiver
+      await program.methods
+        .blacklistAddress(receiver.publicKey)
+        .accountsPartial({
+          blacklister: blacklisterKp.publicKey,
+          config: sss2Config,
+          blacklistEntry: blacklistPda,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([blacklisterKp])
+        .rpc();
+
+      // Attempt transfer to blacklisted receiver — should fail
+      try {
+        await transferChecked(
+          connection,
+          sender,
+          senderAta,
+          sss2Mint.publicKey,
+          receiverAta,
+          sender,
+          100_000,
+          6,
+          [],
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+        expect.fail("Should have thrown — destination is blacklisted");
+      } catch (err) {
+        expect(err.toString()).to.include("Blacklisted");
+      }
+    });
+
+    it("blocks transfer when source is blacklisted", async () => {
+      const [senderBlacklistPda] = findBlacklistPda(
+        sss2Config,
+        sender.publicKey,
+        program.programId
+      );
+
+      // Blacklist the sender
+      await program.methods
+        .blacklistAddress(sender.publicKey)
+        .accountsPartial({
+          blacklister: blacklisterKp.publicKey,
+          config: sss2Config,
+          blacklistEntry: senderBlacklistPda,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([blacklisterKp])
+        .rpc();
+
+      // Attempt transfer from blacklisted sender — should fail
+      try {
+        await transferChecked(
+          connection,
+          sender,
+          senderAta,
+          sss2Mint.publicKey,
+          receiverAta,
+          sender,
+          100_000,
+          6,
+          [],
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+        expect.fail("Should have thrown — source is blacklisted");
+      } catch (err) {
+        expect(err.toString()).to.include("Blacklisted");
+      }
+
+      // Cleanup: remove sender from blacklist
+      await program.methods
+        .removeFromBlacklist(sender.publicKey)
+        .accountsPartial({
+          blacklister: blacklisterKp.publicKey,
+          config: sss2Config,
+          blacklistEntry: senderBlacklistPda,
+        })
+        .signers([blacklisterKp])
+        .rpc();
+    });
+
+    it("allows transfer after removing from blacklist", async () => {
+      const [blacklistPda] = findBlacklistPda(
+        sss2Config,
+        receiver.publicKey,
+        program.programId
+      );
+
+      // Remove receiver from blacklist
+      await program.methods
+        .removeFromBlacklist(receiver.publicKey)
+        .accountsPartial({
+          blacklister: blacklisterKp.publicKey,
+          config: sss2Config,
+          blacklistEntry: blacklistPda,
+        })
+        .signers([blacklisterKp])
+        .rpc();
+
+      // Transfer should succeed again
+      await transferChecked(
+        connection,
+        sender,
+        senderAta,
+        sss2Mint.publicKey,
+        receiverAta,
+        sender,
+        100_000,
+        6,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
     });
   });
 });

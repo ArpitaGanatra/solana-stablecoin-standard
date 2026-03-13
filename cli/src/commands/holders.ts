@@ -4,7 +4,7 @@ import { BN } from "@coral-xyz/anchor";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { getConnection, getNetwork } from "../utils/connection";
 import { loadConfig } from "../utils/config";
-import { error, formatAmount, printTable } from "../utils/format";
+import { error, formatAmount, parseAmount, printTable } from "../utils/format";
 
 export function registerHoldersCommand(program: Command): void {
   program
@@ -23,7 +23,6 @@ export function registerHoldersCommand(program: Command): void {
           TOKEN_2022_PROGRAM_ID,
           {
             filters: [
-              { dataSize: 182 }, // Token account size
               {
                 memcmp: {
                   offset: 0,
@@ -35,7 +34,7 @@ export function registerHoldersCommand(program: Command): void {
         );
 
         const minBalance = opts.minBalance
-          ? new BN(opts.minBalance).mul(new BN(10).pow(new BN(config.decimals)))
+          ? parseAmount(opts.minBalance, config.decimals)
           : new BN(0);
 
         const holders: { owner: string; balance: BN }[] = [];

@@ -1,4 +1,4 @@
-import { PublicKey, Keypair } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 
 // ── On-chain account types ──
@@ -61,41 +61,10 @@ export interface PresetConfig {
 
 // ── Instruction params ──
 
-export interface MintParams {
-  recipient: PublicKey;
-  amount: BN;
-  minter: Keypair;
-}
-
-export interface BurnParams {
-  amount: BN;
-  burnFrom?: PublicKey; // SSS-2: burn from any account via permanent delegate
-}
-
-export interface AddMinterParams {
-  minter: PublicKey;
-  quota: BN;
-  unlimited?: boolean;
-}
-
-export interface UpdateMinterParams {
-  minter: PublicKey;
-  quota: BN;
-  active: boolean;
-  minted: BN;
-  unlimited: boolean;
-}
-
 export interface UpdateRolesParams {
   pauser?: PublicKey | null;
   burner?: PublicKey | null;
   freezer?: PublicKey | null;
   blacklister?: PublicKey | null;
   seizer?: PublicKey | null;
-}
-
-export interface SeizeParams {
-  from: PublicKey;
-  treasury: PublicKey;
-  amount: BN;
 }

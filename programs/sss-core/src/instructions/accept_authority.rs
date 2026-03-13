@@ -13,6 +13,7 @@ pub struct AcceptAuthority<'info> {
         mut,
         seeds = [CONFIG_SEED, config.mint.as_ref()],
         bump = config.bump,
+        constraint = !config.is_paused @ SssError::Paused,
         constraint = config.pending_authority == Some(new_authority.key()) @ SssError::Unauthorized,
     )]
     pub config: Account<'info, StablecoinConfig>,

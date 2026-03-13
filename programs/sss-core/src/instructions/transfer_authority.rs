@@ -21,6 +21,10 @@ pub struct TransferAuthority<'info> {
 
 pub fn handler(ctx: Context<TransferAuthority>, new_authority: Pubkey) -> Result<()> {
     require!(
+        new_authority != Pubkey::default(),
+        SssError::InvalidAuthority
+    );
+    require!(
         new_authority != ctx.accounts.authority.key(),
         SssError::InvalidAuthority
     );

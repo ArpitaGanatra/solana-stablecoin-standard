@@ -6,6 +6,7 @@ import { Keypair } from "@solana/web3.js";
 export interface AppConfig {
   rpcUrl: string;
   programId: string;
+  hookProgramId?: string;
   mint: string;
   keypairPath: string;
   port: number;
@@ -13,6 +14,7 @@ export interface AppConfig {
   logLevel: string;
   pollIntervalMs: number;
   dbPath: string;
+  apiKey?: string;
 }
 
 function required(key: string): string {
@@ -25,6 +27,7 @@ export function loadConfig(): AppConfig {
   return {
     rpcUrl: process.env.RPC_URL ?? "https://api.devnet.solana.com",
     programId: required("PROGRAM_ID"),
+    hookProgramId: process.env.HOOK_PROGRAM_ID,
     mint: required("MINT"),
     keypairPath:
       process.env.KEYPAIR_PATH ??
@@ -34,6 +37,7 @@ export function loadConfig(): AppConfig {
     logLevel: process.env.LOG_LEVEL ?? "info",
     pollIntervalMs: parseInt(process.env.POLL_INTERVAL_MS ?? "5000", 10),
     dbPath: process.env.DB_PATH ?? path.join(process.cwd(), "data", "sss.db"),
+    apiKey: process.env.API_KEY,
   };
 }
 

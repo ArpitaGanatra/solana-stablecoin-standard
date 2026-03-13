@@ -15,6 +15,7 @@ pub struct RemoveFromBlacklist<'info> {
         seeds = [CONFIG_SEED, config.mint.as_ref()],
         bump = config.bump,
         has_one = blacklister @ SssError::Unauthorized,
+        constraint = !config.is_paused @ SssError::Paused,
         constraint = config.enable_transfer_hook @ SssError::ComplianceNotEnabled
     )]
     pub config: Account<'info, StablecoinConfig>,

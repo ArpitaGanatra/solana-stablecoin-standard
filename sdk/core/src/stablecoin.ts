@@ -32,6 +32,9 @@ import { buildCancelAuthorityTransferIx } from "./instructions/cancelAuthorityTr
 import { buildBlacklistAddressIx } from "./instructions/blacklistAddress";
 import { buildRemoveFromBlacklistIx } from "./instructions/removeFromBlacklist";
 import { buildSeizeIx } from "./instructions/seize";
+import { buildInitializeTransferHookIx } from "./instructions/initializeTransferHook";
+import { getTransferHookRemainingAccounts } from "./utils/transferHook";
+import type { SssTransferHook } from "./idl-transfer-hook";
 
 export interface CreateParams {
   program: Program<SssCore>;
@@ -47,6 +50,8 @@ export interface CreateParams {
   enableTransferHook?: boolean;
   defaultAccountFrozen?: boolean;
   transferHookProgramId?: PublicKey;
+  /** Required for SSS-2: the transfer hook program instance */
+  hookProgram?: Program<SssTransferHook>;
 }
 
 export interface LoadParams {
@@ -90,12 +95,11 @@ export class SolanaStablecoin {
    *   authority: adminKeypair,
    * });
    */
-  static async create(
-    params: CreateParams
-  ): Promise<{
+  static async create(params: CreateParams): Promise<{
     stablecoin: SolanaStablecoin;
     mintKeypair: Keypair;
     txSig: string;
+    hookTxSig?: string;
   }> {
     const { program, connection, authority, preset } = params;
     const mintKeypair = Keypair.generate();
@@ -129,7 +133,19 @@ export class SolanaStablecoin {
       configBump
     );
 
-    return { stablecoin, mintKeypair, txSig };
+    // For SSS-2: initialize the transfer hook extra account meta list
+    const enableHook =
+      preset?.enableTransferHook ?? params.enableTransferHook ?? false;
+    let hookTxSig: string | undefined;
+    if (enableHook && params.hookProgram) {
+      hookTxSig = await buildInitializeTransferHookIx(
+        params.hookProgram,
+        authority.publicKey,
+        mintKeypair.publicKey
+      ).rpc();
+    }
+
+    return { stablecoin, mintKeypair, txSig, hookTxSig };
   }
 
   /**
@@ -393,8 +409,26 @@ export class SolanaStablecoin {
       treasury: PublicKey,
       amount: BN,
       seizer: PublicKey,
-      remainingAccounts: AccountMeta[] = []
+      hookProgramId?: PublicKey,
+      remainingAccounts?: AccountMeta[]
     ): Promise<string> => {
+      let accounts = remainingAccounts ?? [];
+
+      // Auto-build transfer hook remaining accounts for SSS-2 mints
+      if (accounts.length === 0 && hookProgramId) {
+        const config = await this.getConfig();
+        if (config.enableTransferHook) {
+          accounts = getTransferHookRemainingAccounts(
+            this.mintAddress,
+            this.configPda,
+            from, // source owner
+            treasury, // dest owner
+            hookProgramId,
+            this.program.programId
+          );
+        }
+      }
+
       return buildSeizeIx(
         this.program,
         seizer,
@@ -402,7 +436,7 @@ export class SolanaStablecoin {
         from,
         treasury,
         amount,
-        remainingAccounts
+        accounts
       ).rpc();
     },
 

@@ -240,6 +240,7 @@ export class EventListenerService {
     logs: string[]
   ): Array<{ name: string; data: Record<string, unknown> }> {
     const events: Array<{ name: string; data: Record<string, unknown> }> = [];
+    const seen = new Set<string>();
 
     // Parse Anchor "Program data:" events
     const EVENT_PREFIX = "Program data: ";
@@ -252,6 +253,7 @@ export class EventListenerService {
               name: "AnchorEvent",
               data: { raw: dataStr, encoded: true },
             });
+            seen.add("AnchorEvent");
           }
         } catch {
           // Skip unparseable encoded events
@@ -259,25 +261,28 @@ export class EventListenerService {
       }
     }
 
-    // Parse human-readable log patterns emitted by the sss-core program
-    const actionPatterns: ReadonlyArray<[string, RegExp]> = [
-      ["Initialized", /Stablecoin initialized/i],
-      ["Minted", /Minted (\d+) tokens/i],
-      ["Burned", /Burned (\d+) tokens/i],
-      ["AccountFrozen", /Account frozen/i],
-      ["AccountThawed", /Account thawed/i],
-      ["Paused", /Program paused/i],
-      ["Unpaused", /Program unpaused/i],
-      ["MinterUpdated", /Minter (added|updated|removed)/i],
-      ["BlacklistAdded", /Address blacklisted/i],
-      ["BlacklistRemoved", /Address removed from blacklist/i],
-      ["Seized", /Tokens seized/i],
-    ];
+    // Parse human-readable log patterns as fallback (only if no Anchor events found)
+    if (seen.size === 0) {
+      const actionPatterns: ReadonlyArray<[string, RegExp]> = [
+        ["Initialized", /Stablecoin initialized/i],
+        ["Minted", /Minted (\d+) tokens/i],
+        ["Burned", /Burned (\d+) tokens/i],
+        ["AccountFrozen", /Account frozen/i],
+        ["AccountThawed", /Account thawed/i],
+        ["Paused", /Program paused/i],
+        ["Unpaused", /Program unpaused/i],
+        ["MinterUpdated", /Minter (added|updated|removed)/i],
+        ["BlacklistAdded", /Address blacklisted/i],
+        ["BlacklistRemoved", /Address removed from blacklist/i],
+        ["Seized", /Tokens seized/i],
+      ];
 
-    for (const log of logs) {
-      for (const [name, pattern] of actionPatterns) {
-        if (pattern.test(log)) {
-          events.push({ name, data: { logMessage: log } });
+      for (const log of logs) {
+        for (const [name, pattern] of actionPatterns) {
+          if (pattern.test(log) && !seen.has(name)) {
+            events.push({ name, data: { logMessage: log } });
+            seen.add(name);
+          }
         }
       }
     }

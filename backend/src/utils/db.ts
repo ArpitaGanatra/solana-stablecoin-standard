@@ -36,7 +36,8 @@ export function initDb(dbPath: string, logger: Logger): Database.Database {
       slot INTEGER NOT NULL,
       block_time INTEGER,
       data TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(tx_signature, event_type)
     );
     CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type);
     CREATE INDEX IF NOT EXISTS idx_events_slot ON events(slot);

@@ -15,6 +15,7 @@ pub struct SeizeTokens<'info> {
         seeds = [CONFIG_SEED, config.mint.as_ref()],
         bump = config.bump,
         has_one = seizer @ SssError::Unauthorized,
+        constraint = !config.is_paused @ SssError::Paused,
         constraint = config.enable_permanent_delegate @ SssError::ComplianceNotEnabled,
     )]
     pub config: Account<'info, StablecoinConfig>,

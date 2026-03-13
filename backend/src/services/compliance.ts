@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey, AccountMeta } from "@solana/web3.js";
 import { Program, BN } from "@coral-xyz/anchor";
 import {
   TOKEN_2022_PROGRAM_ID,
@@ -54,6 +54,7 @@ type SqlBindValue = string | number | null;
 
 export class ComplianceService {
   private readonly configPda: PublicKey;
+  private readonly hookProgramId?: PublicKey;
 
   constructor(
     private db: Database.Database,
@@ -61,12 +62,14 @@ export class ComplianceService {
     private program: Program,
     private authority: Keypair,
     private mint: PublicKey,
-    private logger: Logger
+    private logger: Logger,
+    hookProgramId?: PublicKey
   ) {
     [this.configPda] = PublicKey.findProgramAddressSync(
       [Buffer.from("stablecoin_config"), this.mint.toBuffer()],
       this.program.programId
     );
+    this.hookProgramId = hookProgramId;
   }
 
   // ── Blacklist Management ──
@@ -79,7 +82,7 @@ export class ComplianceService {
 
     const [blacklistPda] = PublicKey.findProgramAddressSync(
       [
-        Buffer.from("blacklist_entry"),
+        Buffer.from("blacklist_seed"),
         this.configPda.toBuffer(),
         target.toBuffer(),
       ],
@@ -118,7 +121,7 @@ export class ComplianceService {
 
     const [blacklistPda] = PublicKey.findProgramAddressSync(
       [
-        Buffer.from("blacklist_entry"),
+        Buffer.from("blacklist_seed"),
         this.configPda.toBuffer(),
         target.toBuffer(),
       ],
@@ -153,7 +156,7 @@ export class ComplianceService {
 
     const [blacklistPda] = PublicKey.findProgramAddressSync(
       [
-        Buffer.from("blacklist_entry"),
+        Buffer.from("blacklist_seed"),
         this.configPda.toBuffer(),
         target.toBuffer(),
       ],
@@ -245,6 +248,39 @@ export class ComplianceService {
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
+    // Build transfer hook remaining accounts for SSS-2 mints
+    const remainingAccounts: AccountMeta[] = [];
+    if (this.hookProgramId) {
+      const [extraMetaList] = PublicKey.findProgramAddressSync(
+        [Buffer.from("extra-account-metas"), this.mint.toBuffer()],
+        this.hookProgramId
+      );
+      const [sourceBlacklist] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("blacklist_seed"),
+          this.configPda.toBuffer(),
+          fromPubkey.toBuffer(),
+        ],
+        this.program.programId
+      );
+      const [destBlacklist] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("blacklist_seed"),
+          this.configPda.toBuffer(),
+          treasuryPubkey.toBuffer(),
+        ],
+        this.program.programId
+      );
+      remainingAccounts.push(
+        { pubkey: extraMetaList, isSigner: false, isWritable: false },
+        { pubkey: this.program.programId, isSigner: false, isWritable: false },
+        { pubkey: this.configPda, isSigner: false, isWritable: false },
+        { pubkey: sourceBlacklist, isSigner: false, isWritable: false },
+        { pubkey: destBlacklist, isSigner: false, isWritable: false },
+        { pubkey: this.hookProgramId, isSigner: false, isWritable: false }
+      );
+    }
+
     const txSig = await this.program.methods
       .seize(amountBn)
       .accounts({
@@ -255,6 +291,7 @@ export class ComplianceService {
         to: treasuryAta,
         tokenProgram: TOKEN_2022_PROGRAM_ID,
       })
+      .remainingAccounts(remainingAccounts)
       .signers([this.authority])
       .rpc();
 

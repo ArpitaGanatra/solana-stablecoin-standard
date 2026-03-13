@@ -78,13 +78,18 @@ async function main() {
     logger.child({ service: "event-listener" })
   );
 
+  const hookProgramId = config.hookProgramId
+    ? new PublicKey(config.hookProgramId)
+    : undefined;
+
   const complianceService = new ComplianceService(
     db,
     connection,
     program,
     authority,
     mint,
-    logger.child({ service: "compliance" })
+    logger.child({ service: "compliance" }),
+    hookProgramId
   );
 
   const webhookService = new WebhookService(
@@ -110,6 +115,21 @@ async function main() {
       }),
     })
   );
+
+  // API key authentication (skip /api/health)
+  if (config.apiKey) {
+    app.use("/api", (req, res, next) => {
+      if (req.path === "/health") return next();
+      const key = req.headers["x-api-key"];
+      if (key !== config.apiKey) {
+        res
+          .status(401)
+          .json({ error: "Unauthorized: invalid or missing API key" });
+        return;
+      }
+      next();
+    });
+  }
 
   // Routes
   app.use("/api", operationsRouter(mintBurnService, logger));
