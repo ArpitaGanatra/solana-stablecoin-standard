@@ -16,13 +16,11 @@ export function buildThawAccountIx(
 ) {
   const [config] = findConfigPda(accounts.mint, program.programId);
 
-  return program.methods
-    .thawAccount()
-    .accountsPartial({
-      freezer: accounts.freezer,
-      config,
-      mint: accounts.mint,
-      tokenAccount: accounts.tokenAccount,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-    });
+  return program.methods.thawAccount().accountsPartial({
+    freezer: accounts.freezer,
+    config,
+    mint: accounts.mint,
+    tokenAccount: accounts.tokenAccount,
+    tokenProgram: TOKEN_2022_PROGRAM_ID,
+  });
 }

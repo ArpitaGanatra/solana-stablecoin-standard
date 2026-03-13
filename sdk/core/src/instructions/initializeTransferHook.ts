@@ -13,12 +13,10 @@ export function buildInitializeTransferHookIx(
     hookProgram.programId
   );
 
-  return hookProgram.methods
-    .initializeExtraAccountMetaList()
-    .accountsPartial({
-      payer,
-      extraAccountMetaList,
-      mint,
-      systemProgram: SystemProgram.programId,
-    });
+  return hookProgram.methods.initializeExtraAccountMetaList().accountsPartial({
+    payer,
+    extraAccountMetaList,
+    mint,
+    systemProgram: SystemProgram.programId,
+  });
 }

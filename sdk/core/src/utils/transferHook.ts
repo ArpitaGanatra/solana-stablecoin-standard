@@ -16,17 +16,21 @@ export function getTransferHookRemainingAccounts(
   coreProgramId: PublicKey
 ): AccountMeta[] {
   const [extraMetaList] = findExtraAccountMetaListPda(mint, hookProgramId);
-  const [sourceBlacklist] = findBlacklistPda(config, sourceOwner, coreProgramId);
+  const [sourceBlacklist] = findBlacklistPda(
+    config,
+    sourceOwner,
+    coreProgramId
+  );
   const [destBlacklist] = findBlacklistPda(config, destOwner, coreProgramId);
 
   return [
     // Extra account meta list (Token-2022 reads this to resolve extra accounts)
     { pubkey: extraMetaList, isSigner: false, isWritable: false },
     // Resolved extra metas (in order defined in InitializeExtraAccountMetaList):
-    { pubkey: coreProgramId, isSigner: false, isWritable: false },   // sss-core program
-    { pubkey: config, isSigner: false, isWritable: false },           // config PDA
-    { pubkey: sourceBlacklist, isSigner: false, isWritable: false },  // source blacklist
-    { pubkey: destBlacklist, isSigner: false, isWritable: false },    // dest blacklist
+    { pubkey: coreProgramId, isSigner: false, isWritable: false }, // sss-core program
+    { pubkey: config, isSigner: false, isWritable: false }, // config PDA
+    { pubkey: sourceBlacklist, isSigner: false, isWritable: false }, // source blacklist
+    { pubkey: destBlacklist, isSigner: false, isWritable: false }, // dest blacklist
     // Hook program (must be last — Token-2022 invokes this)
     { pubkey: hookProgramId, isSigner: false, isWritable: false },
   ];

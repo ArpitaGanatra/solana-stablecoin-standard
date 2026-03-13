@@ -5,40 +5,31 @@
  * IDL can be found at `target/idl/sss_transfer_hook.json`.
  */
 export type SssTransferHook = {
-  "address": "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9",
-  "metadata": {
-    "name": "sssTransferHook",
-    "version": "0.1.0",
-    "spec": "0.1.0",
-    "description": "Transfer hook for SSS blacklist enforcement"
-  },
-  "instructions": [
+  address: "2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9";
+  metadata: {
+    name: "sssTransferHook";
+    version: "0.1.0";
+    spec: "0.1.0";
+    description: "Transfer hook for SSS blacklist enforcement";
+  };
+  instructions: [
     {
-      "name": "initializeExtraAccountMetaList",
-      "discriminator": [
-        43,
-        34,
-        13,
-        49,
-        167,
-        88,
-        235,
-        235
-      ],
-      "accounts": [
+      name: "initializeExtraAccountMetaList";
+      discriminator: [43, 34, 13, 49, 167, 88, 235, 235];
+      accounts: [
         {
-          "name": "payer",
-          "writable": true,
-          "signer": true
+          name: "payer";
+          writable: true;
+          signer: true;
         },
         {
-          "name": "extraAccountMetaList",
-          "writable": true,
-          "pda": {
-            "seeds": [
+          name: "extraAccountMetaList";
+          writable: true;
+          pda: {
+            seeds: [
               {
-                "kind": "const",
-                "value": [
+                kind: "const";
+                value: [
                   101,
                   120,
                   116,
@@ -58,57 +49,48 @@ export type SssTransferHook = {
                   116,
                   97,
                   115
-                ]
+                ];
               },
               {
-                "kind": "account",
-                "path": "mint"
+                kind: "account";
+                path: "mint";
               }
-            ]
-          }
+            ];
+          };
         },
         {
-          "name": "mint"
+          name: "mint";
         },
         {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
         }
-      ],
-      "args": []
+      ];
+      args: [];
     },
     {
-      "name": "transferHook",
-      "discriminator": [
-        105,
-        37,
-        101,
-        197,
-        75,
-        251,
-        102,
-        26
-      ],
-      "accounts": [
+      name: "transferHook";
+      discriminator: [105, 37, 101, 197, 75, 251, 102, 26];
+      accounts: [
         {
-          "name": "sourceToken"
+          name: "sourceToken";
         },
         {
-          "name": "mint"
+          name: "mint";
         },
         {
-          "name": "destinationToken"
+          name: "destinationToken";
         },
         {
-          "name": "owner"
+          name: "owner";
         },
         {
-          "name": "extraAccountMetaList",
-          "pda": {
-            "seeds": [
+          name: "extraAccountMetaList";
+          pda: {
+            seeds: [
               {
-                "kind": "const",
-                "value": [
+                kind: "const";
+                value: [
                   101,
                   120,
                   116,
@@ -128,46 +110,46 @@ export type SssTransferHook = {
                   116,
                   97,
                   115
-                ]
+                ];
               },
               {
-                "kind": "account",
-                "path": "mint"
+                kind: "account";
+                path: "mint";
               }
-            ]
-          }
+            ];
+          };
         },
         {
-          "name": "sssCoreProgram"
+          name: "sssCoreProgram";
         },
         {
-          "name": "config"
+          name: "config";
         },
         {
-          "name": "sourceBlacklistEntry"
+          name: "sourceBlacklistEntry";
         },
         {
-          "name": "destBlacklistEntry"
+          name: "destBlacklistEntry";
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "amount",
-          "type": "u64"
+          name: "amount";
+          type: "u64";
         }
-      ]
+      ];
     }
-  ],
-  "errors": [
+  ];
+  errors: [
     {
-      "code": 6000,
-      "name": "blacklisted",
-      "msg": "Address is blacklisted"
+      code: 6000;
+      name: "blacklisted";
+      msg: "Address is blacklisted";
     },
     {
-      "code": 6001,
-      "name": "notTransferring",
-      "msg": "Not currently transferring"
+      code: 6001;
+      name: "notTransferring";
+      msg: "Not currently transferring";
     }
-  ]
+  ];
 };

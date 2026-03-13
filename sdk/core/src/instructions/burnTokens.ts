@@ -17,13 +17,11 @@ export function buildBurnTokensIx(
 ) {
   const [config] = findConfigPda(accounts.mint, program.programId);
 
-  return program.methods
-    .burnTokens(amount)
-    .accountsPartial({
-      burner: accounts.burner,
-      config,
-      mint: accounts.mint,
-      tokenAccount: accounts.tokenAccount,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-    });
+  return program.methods.burnTokens(amount).accountsPartial({
+    burner: accounts.burner,
+    config,
+    mint: accounts.mint,
+    tokenAccount: accounts.tokenAccount,
+    tokenProgram: TOKEN_2022_PROGRAM_ID,
+  });
 }

@@ -1,10 +1,5 @@
 import { Program, BN } from "@coral-xyz/anchor";
-import {
-  Connection,
-  PublicKey,
-  Keypair,
-  AccountMeta,
-} from "@solana/web3.js";
+import { Connection, PublicKey, Keypair, AccountMeta } from "@solana/web3.js";
 import {
   TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
@@ -97,7 +92,11 @@ export class SolanaStablecoin {
    */
   static async create(
     params: CreateParams
-  ): Promise<{ stablecoin: SolanaStablecoin; mintKeypair: Keypair; txSig: string }> {
+  ): Promise<{
+    stablecoin: SolanaStablecoin;
+    mintKeypair: Keypair;
+    txSig: string;
+  }> {
     const { program, connection, authority, preset } = params;
     const mintKeypair = Keypair.generate();
     const [configPda, configBump] = findConfigPda(
@@ -146,7 +145,13 @@ export class SolanaStablecoin {
     // Verify config exists
     await program.account.stablecoinConfig.fetch(configPda);
 
-    return new SolanaStablecoin(program, connection, mint, configPda, configBump);
+    return new SolanaStablecoin(
+      program,
+      connection,
+      mint,
+      configPda,
+      configBump
+    );
   }
 
   // ── Queries ──
@@ -229,7 +234,11 @@ export class SolanaStablecoin {
   }): Promise<string> {
     return buildBurnTokensIx(
       this.program,
-      { burner: params.burner, mint: this.mintAddress, tokenAccount: params.tokenAccount },
+      {
+        burner: params.burner,
+        mint: this.mintAddress,
+        tokenAccount: params.tokenAccount,
+      },
       params.amount
     ).rpc();
   }

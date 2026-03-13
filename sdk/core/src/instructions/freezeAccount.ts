@@ -16,13 +16,11 @@ export function buildFreezeAccountIx(
 ) {
   const [config] = findConfigPda(accounts.mint, program.programId);
 
-  return program.methods
-    .freezeAccount()
-    .accountsPartial({
-      freezer: accounts.freezer,
-      config,
-      mint: accounts.mint,
-      tokenAccount: accounts.tokenAccount,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-    });
+  return program.methods.freezeAccount().accountsPartial({
+    freezer: accounts.freezer,
+    config,
+    mint: accounts.mint,
+    tokenAccount: accounts.tokenAccount,
+    tokenProgram: TOKEN_2022_PROGRAM_ID,
+  });
 }

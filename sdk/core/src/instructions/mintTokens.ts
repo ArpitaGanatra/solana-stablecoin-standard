@@ -16,16 +16,18 @@ export function buildMintTokensIx(
   amount: BN
 ) {
   const [config] = findConfigPda(accounts.mint, program.programId);
-  const [minterInfo] = findMinterPda(config, accounts.minter, program.programId);
+  const [minterInfo] = findMinterPda(
+    config,
+    accounts.minter,
+    program.programId
+  );
 
-  return program.methods
-    .mintTokens(amount)
-    .accountsPartial({
-      minter: accounts.minter,
-      config,
-      minterInfo,
-      mint: accounts.mint,
-      tokenAccount: accounts.tokenAccount,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-    });
+  return program.methods.mintTokens(amount).accountsPartial({
+    minter: accounts.minter,
+    config,
+    minterInfo,
+    mint: accounts.mint,
+    tokenAccount: accounts.tokenAccount,
+    tokenProgram: TOKEN_2022_PROGRAM_ID,
+  });
 }
