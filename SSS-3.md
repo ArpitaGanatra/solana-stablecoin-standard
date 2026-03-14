@@ -27,45 +27,50 @@ SSS-3 extends SSS-1 with **confidential transfers** and **scoped allowlists**, e
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    SSS-3 Mint                        │
-│                                                     │
-│  Token-2022 Extensions:                             │
-│  ├── ConfidentialTransferMint                       │
-│  │   ├── authority: PDA or keypair                  │
-│  │   ├── auto_approve_new_accounts: false           │
-│  │   └── auditor_elgamal_pubkey: issuer key         │
-│  ├── MetadataPointer → self                         │
-│  └── TokenMetadata (name, symbol, uri)              │
-│                                                     │
-│  NOT included (incompatible):                       │
-│  ├── TransferHook                                   │
-│  └── PermanentDelegate                              │
-└─────────────────────────────────────────────────────┘
+```mermaid
+classDiagram
+    class SSS3_Mint {
+        +ConfidentialTransferMint
+        authority: PDA or keypair
+        auto_approve_new_accounts: false
+        auditor_elgamal_pubkey: issuer key
+        +MetadataPointer → self
+        +TokenMetadata(name, symbol, uri)
+        ~~TransferHook~~ ❌ incompatible
+        ~~PermanentDelegate~~ ❌ incompatible
+    }
 
-┌─────────────────────────────────────────────────────┐
-│              SSS-3 Token Account                     │
-│                                                     │
-│  Base: owner, mint, amount (public balance)          │
-│                                                     │
-│  ConfidentialTransferAccount extension:              │
-│  ├── approved: bool (allowlist gate)                 │
-│  ├── elgamal_pubkey: owner's encryption key          │
-│  ├── pending_balance: encrypted                      │
-│  ├── available_balance: encrypted                    │
-│  └── decryptable_available_balance: AES-encrypted    │
-└─────────────────────────────────────────────────────┘
+    class SSS3_TokenAccount {
+        +owner: Pubkey
+        +mint: Pubkey
+        +amount: u64 (public balance)
+        ---
+        +approved: bool (allowlist gate)
+        +elgamal_pubkey: owner encryption key
+        +pending_balance: encrypted
+        +available_balance: encrypted
+        +decryptable_available_balance: AES
+    }
+
+    SSS3_Mint --> SSS3_TokenAccount : creates
 ```
 
 ### Compliance: Approval-Authority Pattern
 
 Instead of blacklist enforcement via transfer hooks (SSS-2), SSS-3 uses an **allowlist**:
 
-1. `auto_approve_new_accounts = false` on the mint
-2. New token accounts cannot send/receive confidential transfers until approved
-3. The `authority` on `ConfidentialTransferMint` calls `ApproveAccount` after KYC/compliance checks
-4. Only approved accounts can participate in confidential transfers
+```mermaid
+graph TD
+    A["New Token Account Created"] --> B{"auto_approve = false"}
+    B --> C["Account BLOCKED<br/>Cannot send/receive CT"]
+    C --> D{"KYC / Compliance<br/>check passed?"}
+    D -->|No| C
+    D -->|Yes| E["Authority calls<br/>ApproveAccount"]
+    E --> F["Account APPROVED<br/>Can participate in CT"]
+
+    style C fill:#ffebee
+    style F fill:#e8f5e9
+```
 
 This is equivalent to SSS-2's blacklist but inverted: deny by default, approve explicitly.
 
@@ -133,12 +138,29 @@ Merges pending balance into available balance. Requires off-chain computation wi
 
 ### 5. Confidential Transfer (4-5 transactions)
 
-```
-TX 1: Create 3 proof context state accounts (equality, ciphertext validity, range)
-TX 2: Verify range proof (large — exceeds single tx limit)
-TX 3: Verify equality + ciphertext validity proofs
-TX 4: Execute confidential transfer (references proof accounts)
-TX 5: Close proof context state accounts (reclaim rent)
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Solana
+    participant ZK as ZK ElGamal Program
+    participant T22 as Token-2022
+
+    rect rgb(232, 245, 233)
+    Note over Client, T22: Confidential Transfer (4-5 TXs)
+    Client->>Solana: TX 1: Create 3 proof context accounts
+    Note right of Solana: equality, ciphertext validity, range
+
+    Client->>ZK: TX 2: Verify range proof
+    Note right of ZK: Too large for single TX
+
+    Client->>ZK: TX 3: Verify equality + ciphertext validity
+
+    Client->>T22: TX 4: Execute confidential transfer
+    Note right of T22: References proof accounts
+
+    Client->>Solana: TX 5: Close proof accounts
+    Note right of Solana: Reclaim rent
+    end
 ```
 
 Each transfer requires:

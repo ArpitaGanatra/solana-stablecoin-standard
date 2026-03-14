@@ -44,18 +44,21 @@ pub fn handler(ctx: Context<MintTokens>, amount: u64) -> Result<()> {
 
     let minter_info = &mut ctx.accounts.minter_info;
 
+    // Track minted amount for all minters
+    let new_minted = minter_info
+        .minted
+        .checked_add(amount)
+        .ok_or(SssError::Overflow)?;
+
     // Enforce quota unless minter has unlimited flag
     if !minter_info.unlimited {
-        let new_minted = minter_info
-            .minted
-            .checked_add(amount)
-            .ok_or(SssError::Overflow)?;
         require!(
             new_minted <= minter_info.quota,
             SssError::MinterQuotaExceeded
         );
-        minter_info.minted = new_minted;
     }
+
+    minter_info.minted = new_minted;
 
     //CPI: mint_to signed by config PDA
     let mint_key = ctx.accounts.config.mint;

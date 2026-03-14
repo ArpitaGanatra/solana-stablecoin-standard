@@ -1,18 +1,5 @@
 # SSS-2: Compliant Stablecoin Standard
 
-**Status:** Active
-**Type:** Standard
-**Created:** 2025
-**Requires:** SSS-1
-
----
-
-## Abstract
-
-SSS-2 extends the SSS-1 Minimal Stablecoin Standard with proactive compliance enforcement for regulated stablecoins on Solana. By enabling the Permanent Delegate, Transfer Hook, and Default Account State extensions of Token-2022, SSS-2 provides on-chain blacklist enforcement on every transfer, regulatory seizure capability, and an allowlist model where new token accounts must be explicitly approved before use. SSS-2 is designed for USDC/USDT-class tokens, bank-issued stablecoins, and any token where regulators expect enforceable transfer restrictions and asset recovery.
-
----
-
 ## Motivation
 
 Regulated stablecoin issuers operate under legal frameworks that require more than reactive freeze-and-pause controls. Specifically:
@@ -69,23 +56,69 @@ This capability is exposed exclusively through the `seize` instruction, which is
 
 The `sss-transfer-hook` program (`2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9`) is registered as the transfer hook on the Token-2022 mint. Every call to `transfer_checked` (the only transfer instruction that works with transfer hooks) triggers the following flow:
 
+```mermaid
+graph TD
+    A["Token-2022<br/>transfer_checked"] --> B["sss-transfer-hook::transfer_hook<br/>(source, mint, destination, owner, amount)"]
+    B --> C{"Source account in<br/>'transferring' state?"}
+    C -->|No| D["DENY<br/>Direct invocation blocked"]
+    C -->|Yes| E{"owner == Config PDA?"}
+    E -->|Yes| F["ALLOW<br/>Seizure / program transfer"]
+    E -->|No| G{"source_blacklist_entry<br/>PDA exists?"}
+    G -->|Yes| H["DENY<br/>Source blacklisted"]
+    G -->|No| I{"dest_blacklist_entry<br/>PDA exists?"}
+    I -->|Yes| J["DENY<br/>Destination blacklisted"]
+    I -->|No| K["ALLOW<br/>Transfer proceeds"]
+
+    style F fill:#e8f5e9
+    style K fill:#e8f5e9
+    style D fill:#ffebee
+    style H fill:#ffebee
+    style J fill:#ffebee
 ```
-Token-2022 transfer_checked
-    |
-    v
-sss-transfer-hook::transfer_hook(source, mint, destination, owner, amount)
-    |
-    +-- Verify the source token account is in "transferring" state
-    |   (prevents direct invocation outside of Token-2022)
-    |
-    +-- If owner == Config PDA: ALLOW
-    |   (permits seizure and program-initiated transfers)
-    |
-    +-- Check source_blacklist_entry PDA: if account exists -> DENY
-    |
-    +-- Check dest_blacklist_entry PDA: if account exists -> DENY
-    |
-    +-- Both clear: ALLOW
+
+The following shows all three transfer paths in action: normal, blocked, and seizure.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Core as sss-core
+    participant T22 as Token-2022
+    participant Hook as sss-transfer-hook
+    participant BL as Blacklist PDAs
+
+    rect rgb(232, 245, 233)
+    Note over User, BL: Normal Transfer
+    User->>T22: transfer_checked
+    T22->>Hook: CPI: transfer_hook
+    Hook->>BL: Check source PDA
+    BL-->>Hook: Empty (not blacklisted)
+    Hook->>BL: Check dest PDA
+    BL-->>Hook: Empty (not blacklisted)
+    Hook-->>T22: ALLOW
+    T22-->>User: Transfer completes
+    end
+
+    rect rgb(255, 235, 238)
+    Note over User, BL: Blocked Transfer
+    User->>T22: transfer_checked
+    T22->>Hook: CPI: transfer_hook
+    Hook->>BL: Check source PDA
+    BL-->>Hook: BlacklistEntry exists
+    Hook-->>T22: ERROR: Blacklisted
+    T22-->>User: Transaction reverted
+    end
+
+    rect rgb(227, 242, 253)
+    Note over User, BL: Seizure Transfer
+    User->>Core: seize(target, treasury, amount)
+    Core->>Core: Validate seizer role
+    Core->>T22: transfer_checked (Config PDA signs)
+    T22->>Hook: CPI: transfer_hook
+    Hook->>Hook: Signer is Config PDA
+    Hook-->>T22: ALLOW (bypass blacklist)
+    T22-->>Core: Transfer complete
+    Core-->>User: TokensSeized event
+    end
 ```
 
 The transfer hook resolves blacklist PDAs using the `ExtraAccountMetaList` mechanism. For each transfer, Token-2022 automatically derives and includes:
@@ -197,77 +230,6 @@ These roles are managed through the same `update_roles` instruction as SSS-1 rol
 | Freezer | Active | Active | Freeze/thaw individual accounts |
 | Blacklister | Dormant | Active | Add/remove blacklist entries |
 | Seizer | Dormant | Active | Seize tokens via permanent delegate |
-
----
-
-## Transfer Hook Flow
-
-The following describes the complete lifecycle of a transfer for an SSS-2 token:
-
-### Normal Transfer (non-blacklisted parties)
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant T22 as Token-2022
-    participant Hook as sss-transfer-hook
-    participant BL as Blacklist PDAs
-
-    User->>T22: transfer_checked
-    T22->>Hook: CPI: transfer_hook
-    Hook->>Hook: Verify transferring state
-    Hook->>BL: Check source blacklist PDA
-    Note over BL: Account empty (not blacklisted)
-    Hook->>BL: Check dest blacklist PDA
-    Note over BL: Account empty (not blacklisted)
-    Hook-->>T22: ALLOW
-    T22-->>User: Transfer completes
-```
-
-1. User calls `transfer_checked` on Token-2022 with the token mint.
-2. Token-2022 detects the TransferHook extension and invokes `sss-transfer-hook::transfer_hook`.
-3. The hook verifies the source token account is in "transferring" state (preventing direct invocation).
-4. The hook checks if the owner is the Config PDA. If so, the transfer is allowed (this path is used by seizure).
-5. The hook derives the source blacklist PDA and checks if the account is empty. It is empty (not blacklisted).
-6. The hook derives the destination blacklist PDA and checks if the account is empty. It is empty (not blacklisted).
-7. The hook returns success. Token-2022 completes the transfer.
-
-### Blocked Transfer (blacklisted party)
-
-1. User calls `transfer_checked` on Token-2022.
-2. Token-2022 invokes `sss-transfer-hook::transfer_hook`.
-3. The hook derives the source or destination blacklist PDA and finds a non-empty account (a `BlacklistEntry` exists).
-4. The hook returns `Blacklisted` error. Token-2022 reverts the entire transaction.
-
-### Seizure Transfer
-
-1. Seizer calls `sss-core::seize` with the target account, treasury account, and amount.
-2. `sss-core` validates the seizer role and that permanent delegate is enabled.
-3. `sss-core` builds a `transfer_checked` instruction signed by the Config PDA (permanent delegate).
-4. Token-2022 invokes the transfer hook. The hook sees that the owner (signer) is the Config PDA and allows the transfer immediately, bypassing blacklist checks.
-5. Tokens are transferred from the target to the treasury.
-6. `TokensSeized` event is emitted.
-
----
-
-## Seizure Flow
-
-```mermaid
-sequenceDiagram
-    participant Seizer
-    participant Core as sss-core
-    participant T22 as Token-2022
-    participant Hook as sss-transfer-hook
-
-    Seizer->>Core: seize(from, treasury, amount)
-    Core->>Core: Validate seizer role, not paused, permanent delegate
-    Core->>T22: transfer_checked (Config PDA signs)
-    T22->>Hook: CPI: transfer_hook
-    Hook->>Hook: owner == Config PDA → ALLOW
-    Hook-->>T22: ALLOW
-    T22-->>Core: Transfer complete
-    Core-->>Seizer: TokensSeized event emitted
-```
 
 ---
 

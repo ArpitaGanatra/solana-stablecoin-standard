@@ -14,9 +14,11 @@ import { success, error, info, printTx, parseAmount } from "../utils/format";
 import { buildMintTokensIx } from "@stbr/sss-token";
 import {
   getAssociatedTokenAddressSync,
+  createAssociatedTokenAccountInstruction,
   TOKEN_2022_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+import { Transaction } from "@solana/web3.js";
 
 export function registerMintCommand(program: Command): void {
   program
@@ -48,6 +50,21 @@ export function registerMintCommand(program: Command): void {
           TOKEN_2022_PROGRAM_ID,
           ASSOCIATED_TOKEN_PROGRAM_ID
         );
+
+        // Create the ATA if it doesn't exist
+        const ataInfo = await connection.getAccountInfo(tokenAccount);
+        if (!ataInfo) {
+          const createAtaIx = createAssociatedTokenAccountInstruction(
+            minter.publicKey,
+            tokenAccount,
+            recipientPubkey,
+            mintPubkey,
+            TOKEN_2022_PROGRAM_ID,
+            ASSOCIATED_TOKEN_PROGRAM_ID
+          );
+          const tx = new Transaction().add(createAtaIx);
+          await provider.sendAndConfirm(tx);
+        }
 
         const txSig = await buildMintTokensIx(
           coreProgram as any,

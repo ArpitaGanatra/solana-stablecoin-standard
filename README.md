@@ -513,7 +513,30 @@ The test suite in `tests/` covers:
 
 ## Devnet Deployment
 
-The programs are deployed to Solana devnet with the addresses listed in `Anchor.toml`.
+All three programs are live on Solana devnet:
+
+| Program | Program ID | Explorer |
+|---------|-----------|----------|
+| `sss-core` | `4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb` | [View on Explorer](https://explorer.solana.com/address/4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb?cluster=devnet) |
+| `sss-transfer-hook` | `2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9` | [View on Explorer](https://explorer.solana.com/address/2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9?cluster=devnet) |
+| `sss-oracle` | `GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH` | [View on Explorer](https://explorer.solana.com/address/GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH?cluster=devnet) |
+
+### Example Transactions
+
+SSS-1 token mint `87M3uP3Mg8GsLtMS51qp4RtrCoByasZ9yrpCmT14K71e` ([View on Explorer](https://explorer.solana.com/address/87M3uP3Mg8GsLtMS51qp4RtrCoByasZ9yrpCmT14K71e?cluster=devnet))
+
+| Operation | Explorer |
+|-----------|----------|
+| Initialize SSS-1 token | [View](https://explorer.solana.com/tx/4QtCXCvfXtM37Z1VtF5pbQdLCWHPkVfRDkvuWogStGcBagHXzd1iMLiQxVLpPsZfSKedjNuds2UVWYrLsmRkc3Rb?cluster=devnet) |
+| Add minter (unlimited) | [View](https://explorer.solana.com/tx/4rzEJJTKBHwvu3NyxvfXLuGndVJtihHbW2Y4xs9W4Vr9jnLDYPnRNNwMUhRkjhEnSkC5inHsXWn1dYEWNEHaLVKw?cluster=devnet) |
+| Mint 1000 tokens | [View](https://explorer.solana.com/tx/657pVABH9NANZU3pDPL1fyXYf5WYof55V2RZXC5ZwkfLmTXVZH8cTgbdTxMaMCDyF5kLfS5oMPHfaxzGqwtYC4Vw?cluster=devnet) |
+| Freeze account | [View](https://explorer.solana.com/tx/2yxCkTYqzd1CHvqKzs2NaLw5sM44qEnkmj3wShnpVND7q59SSbL3HtgXEa3GpVwKFtGFxDLKNkaDet7X6G8jKKLZ?cluster=devnet) |
+| Pause token | [View](https://explorer.solana.com/tx/4dAhDP1SqdKHTmGCvD86bjgXxXxNfTCFfPaKUYsMYbA8QviDrKJSJJeHMMkwC5o6dJAsQ2cxQRkq6gfXPiMtHfB1?cluster=devnet) |
+| Unpause token | [View](https://explorer.solana.com/tx/neFnq8wYgHUtEaXJgZbYu5AvX3wBwx9QpHeQukWZWMVsVP13N38KRKsbiKZxbjyicLh39GuKvBUWbvQL1yLrAie?cluster=devnet) |
+| Thaw account | [View](https://explorer.solana.com/tx/5Pwsv9kk6HzVbHDQebCqrqvdJit2tisiPYVrYyocgaDFYge5zYZsTmN3yGUgD7LNBwfbNDW3noqhk9TGw5hWB1xm?cluster=devnet) |
+| Burn 500 tokens | [View](https://explorer.solana.com/tx/3C7VcttB1fvXs7aJG3qW6HyV3Vu3UvCB6oPSxmCkZATESgMQNDZbUSwBKDNCBXfnvMZ8wvztqQ8eEvWVduWsDP4V?cluster=devnet) |
+
+### Deploy It Yourself
 
 ```bash
 # Configure for devnet

@@ -1,17 +1,5 @@
 # SSS-1: Minimal Stablecoin Standard
 
-**Status:** Active
-**Type:** Standard
-**Created:** 2025
-
----
-
-## Abstract
-
-SSS-1 defines the minimal viable stablecoin specification on Solana using the Token-2022 program. It provides a standardized interface for issuing, managing, and controlling stablecoins with essential operational capabilities including minting with quota enforcement, burning, freezing individual accounts, and emergency pause. SSS-1 is designed for use cases where compliance requirements are reactive rather than proactive -- issuers freeze or pause as needed rather than restricting every transfer at execution time.
-
----
-
 ## Motivation
 
 Not every stablecoin requires the full compliance apparatus of a USDC or USDT. Many legitimate use cases call for a simpler token with basic operational controls:
@@ -21,7 +9,7 @@ Not every stablecoin requires the full compliance apparatus of a USDC or USDT. M
 - **Reward tokens** distributed by applications to their users.
 - **Gaming currencies** backed by reserves held off-chain or in a vault.
 
-These tokens still need professional-grade controls -- the ability to pause in an emergency, freeze a compromised account, enforce minting quotas, and transfer administrative authority safely. SSS-1 provides exactly this without the overhead of transfer hooks, permanent delegates, or default-frozen accounts.
+These tokens still need professional-grade controls, that is the ability to pause in an emergency, freeze a compromised account, enforce minting quotas, and transfer administrative authority safely. SSS-1 provides exactly this without the overhead of transfer hooks, permanent delegates, or default-frozen accounts.
 
 By standardizing on a single program (`sss-core` at `4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb`), SSS-1 tokens share a common interface, making them straightforward to integrate into wallets, DEXs, and indexing infrastructure.
 

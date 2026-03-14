@@ -276,29 +276,25 @@ erDiagram
 
 ### StablecoinConfig Fields
 
-```
-+---------------------------+----------+---------------------------------------+
-| Field                     | Type     | Description                           |
-+---------------------------+----------+---------------------------------------+
-| authority                 | Pubkey   | Master authority                      |
-| mint                      | Pubkey   | Token-2022 mint address               |
-| pauser                    | Pubkey   | Can pause/unpause                     |
-| burner                    | Pubkey   | Can burn tokens                       |
-| freezer                   | Pubkey   | Can freeze/thaw accounts              |
-| blacklister               | Pubkey   | Can manage blacklist                  |
-| seizer                    | Pubkey   | Can seize tokens                      |
-| pending_authority         | Option   | Two-step authority transfer target    |
-| decimals                  | u8       | Token decimal places                  |
-| is_paused                 | bool     | Global pause flag                     |
-| has_metadata              | bool     | Whether metadata extension is active  |
-| total_minters             | u16      | Count of registered minters           |
-| enable_permanent_delegate | bool     | SSS-2: seizure capability             |
-| enable_transfer_hook      | bool     | SSS-2: blacklist enforcement          |
-| default_account_frozen    | bool     | SSS-2: accounts start frozen          |
-| bump                      | u8       | Canonical PDA bump                    |
-| _reserved                 | [u8; 32] | Reserved for future upgrades          |
-+---------------------------+----------+---------------------------------------+
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `authority` | `Pubkey` | Master authority |
+| `mint` | `Pubkey` | Token-2022 mint address |
+| `pauser` | `Pubkey` | Can pause/unpause |
+| `burner` | `Pubkey` | Can burn tokens |
+| `freezer` | `Pubkey` | Can freeze/thaw accounts |
+| `blacklister` | `Pubkey` | Can manage blacklist |
+| `seizer` | `Pubkey` | Can seize tokens |
+| `pending_authority` | `Option<Pubkey>` | Two-step authority transfer target |
+| `decimals` | `u8` | Token decimal places |
+| `is_paused` | `bool` | Global pause flag |
+| `has_metadata` | `bool` | Whether metadata extension is active |
+| `total_minters` | `u16` | Count of registered minters |
+| `enable_permanent_delegate` | `bool` | SSS-2: seizure capability |
+| `enable_transfer_hook` | `bool` | SSS-2: blacklist enforcement |
+| `default_account_frozen` | `bool` | SSS-2: accounts start frozen |
+| `bump` | `u8` | Canonical PDA bump |
+| `_reserved` | `[u8; 32]` | Reserved for future upgrades |
 
 ---
 
