@@ -122,9 +122,9 @@ export default function StablecoinProvider({
         return val;
       };
 
-      const readU32 = () => {
-        const val = data.readUInt32LE(offset);
-        offset += 4;
+      const readU16 = () => {
+        const val = data.readUInt16LE(offset);
+        offset += 2;
         return val;
       };
 
@@ -134,7 +134,6 @@ export default function StablecoinProvider({
         if (hasValue) {
           return readPubkey();
         }
-        offset += 32;
         return null;
       };
 
@@ -149,7 +148,7 @@ export default function StablecoinProvider({
       const decimals = readU8();
       const isPaused = readBool();
       const hasMetadata = readBool();
-      const totalMinters = readU32();
+      const totalMinters = readU16();
       const enablePermanentDelegate = readBool();
       const enableTransferHook = readBool();
       const defaultAccountFrozen = readBool();
