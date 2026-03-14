@@ -36,7 +36,7 @@ export function registerInitCommand(program: Command): void {
   program
     .command("init")
     .description("Initialize a new stablecoin")
-    .option("--preset <preset>", "Use a standard preset (sss-1 or sss-2)")
+    .option("--preset <preset>", "Use a standard preset (sss-1, sss-2, or sss-3)")
     .option("--custom <config>", "Path to custom config file (TOML or JSON)")
     .option("--name <name>", "Token name")
     .option("--symbol <symbol>", "Token symbol")
@@ -92,12 +92,17 @@ export function registerInitCommand(program: Command): void {
           }
         } else if (opts.preset) {
           const preset = opts.preset.toLowerCase().replace("-", "_");
-          if (preset !== "sss_1" && preset !== "sss_2") {
-            error('Invalid preset. Use "sss-1" or "sss-2".');
+          if (preset !== "sss_1" && preset !== "sss_2" && preset !== "sss_3") {
+            error('Invalid preset. Use "sss-1", "sss-2", or "sss-3".');
             process.exit(1);
           }
 
-          presetName = preset === "sss_1" ? "SSS-1" : "SSS-2";
+          presetName =
+            preset === "sss_1"
+              ? "SSS-1"
+              : preset === "sss_2"
+                ? "SSS-2"
+                : "SSS-3";
 
           if (!opts.name || !opts.symbol) {
             error("--name and --symbol are required with --preset.");
@@ -112,6 +117,21 @@ export function registerInitCommand(program: Command): void {
             enablePermanentDelegate = true;
             enableTransferHook = true;
             transferHookProgramId = SSS_HOOK_PROGRAM_ID;
+          }
+
+          if (preset === "sss_3") {
+            info(
+              "SSS-3 (Private Stablecoin): Confidential transfers enabled."
+            );
+            info(
+              "Note: ZK ElGamal Proof Program is currently disabled on devnet/mainnet."
+            );
+            info(
+              "Use local validator for testing. Confidential transfer setup requires additional client-side steps."
+            );
+            // SSS-3 uses the same sss-core program with metadata only.
+            // Confidential transfer extension is initialized client-side via Token-2022.
+            // No transfer hooks (incompatible with confidential transfers).
           }
         } else {
           // Inline args

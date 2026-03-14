@@ -1,0 +1,19 @@
+{
+  "name": "@stbr/sss-confidential",
+  "version": "0.1.0",
+  "description": "SSS-3 Confidential Transfer utilities for private stablecoins",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@solana/spl-token": "^0.4.6",
+    "@solana/web3.js": "^1.95.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

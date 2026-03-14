@@ -57,6 +57,7 @@ export interface PresetConfig {
   enablePermanentDelegate: boolean;
   enableTransferHook: boolean;
   defaultAccountFrozen: boolean;
+  enableConfidentialTransfer?: boolean;
 }
 
 // ── Instruction params ──
