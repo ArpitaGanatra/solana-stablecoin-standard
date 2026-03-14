@@ -17,13 +17,13 @@ Built by [Superteam Brazil](https://superteam.fun).
 - [Architecture](#architecture)
 - [Standards Comparison](#standards-comparison)
 - [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
 - [SDK Reference](#sdk-reference)
 - [Backend Services](#backend-services)
 - [Bonus Features](#bonus-features)
 - [On-Chain Programs](#on-chain-programs)
 - [Testing](#testing)
 - [Devnet Deployment](#devnet-deployment)
+- [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -47,87 +47,45 @@ The Solana Stablecoin Standard (SSS) provides everything needed to launch, manag
 
 ## Architecture
 
-```d2
-direction: down
+```mermaid
+graph TD
+    subgraph "Layer 3 — Standard Presets"
+        SSS1["SSS-1<br/>Minimal Stablecoin"]
+        SSS2["SSS-2<br/>Compliant Stablecoin"]
+        SSS3["SSS-3<br/>Private Stablecoin"]
+    end
 
-Layer 3 — Standard Presets: {
-  SSS-1: "SSS-1\nMinimal Stablecoin" {
-    style.fill: "#e8f5e9"
-  }
-  SSS-2: "SSS-2\nCompliant Stablecoin" {
-    style.fill: "#e3f2fd"
-  }
-  SSS-3: "SSS-3\nPrivate Stablecoin" {
-    style.fill: "#fce4ec"
-  }
-}
+    subgraph "Layer 2 — Modules"
+        COMP["Compliance Module<br/>Transfer Hook · Blacklist · Permanent Delegate"]
+        ORACLE["Oracle Module<br/>Switchboard Feeds · Non-USD Pegs"]
+        CONF["Confidential Module<br/>Encrypted Balances · Allowlists"]
+    end
 
-Layer 2 — Modules: {
-  Compliance: "Compliance Module\nTransfer Hook · Blacklist · Permanent Delegate"
-  Oracle: "Oracle Module\nSwitchboard Feeds · Non-USD Pegs"
-  Confidential: "Confidential Module\nEncrypted Balances · Allowlists"
-}
+    subgraph "Layer 1 — Base SDK"
+        BASE["Token Creation (Token-2022)<br/>Mint · Burn · Freeze · Pause · Roles"]
+    end
 
-Layer 1 — Base SDK: {
-  Base: "Token Creation (Token-2022)\nMint · Burn · Freeze · Pause · Roles"
-}
+    subgraph "On-Chain Programs"
+        CORE["sss-core<br/>4H5fRECQ...MAvb"]
+        HOOK["sss-transfer-hook<br/>2VymphXY...DTLH9"]
+        ORC["sss-oracle<br/>GnEKCqWB...PH"]
+    end
 
-On-Chain Programs: {
-  sss-core: "sss-core\n4H5fRECQ...MAvb"
-  sss-transfer-hook: "sss-transfer-hook\n2VymphXY...DTLH9"
-  sss-oracle: "sss-oracle\nGnEKCqWB...PH"
-}
+    SOL["Solana Runtime · Token-2022"]
 
-Solana: "Solana Runtime · Token-2022" {
-  style.fill: "#fff3e0"
-}
-
-Layer 3 — Standard Presets.SSS-1 -> Layer 1 — Base SDK.Base
-Layer 3 — Standard Presets.SSS-2 -> Layer 2 — Modules.Compliance
-Layer 3 — Standard Presets.SSS-2 -> Layer 1 — Base SDK.Base
-Layer 3 — Standard Presets.SSS-3 -> Layer 2 — Modules.Confidential
-Layer 3 — Standard Presets.SSS-3 -> Layer 1 — Base SDK.Base
-Layer 2 — Modules.Compliance -> On-Chain Programs.sss-core
-Layer 2 — Modules.Compliance -> On-Chain Programs.sss-transfer-hook
-Layer 2 — Modules.Oracle -> On-Chain Programs.sss-oracle
-Layer 2 — Modules.Confidential -> On-Chain Programs.sss-core
-Layer 1 — Base SDK.Base -> On-Chain Programs.sss-core
-On-Chain Programs.sss-core -> Solana
-On-Chain Programs.sss-transfer-hook -> Solana
-On-Chain Programs.sss-oracle -> Solana
-```
-
-### Component Map
-
-```d2
-direction: right
-
-CLI: "sss-token CLI"
-Frontend: "Frontend\nNext.js"
-TUI: "TUI\nReact Ink"
-SDK: "@stbr/sss-token SDK" {
-  style.fill: "#e3f2fd"
-}
-Programs: "On-Chain Programs" {
-  style.fill: "#fff3e0"
-}
-Backend: "Backend\nExpress.js"
-RPC: "Solana RPC"
-DB: "SQLite"
-Webhooks: "Webhooks"
-Oracle Module: "Oracle Module"
-Switchboard: "Switchboard Feeds"
-sss-oracle: "sss-oracle Program"
-
-CLI -> SDK
-Frontend -> SDK
-TUI -> SDK
-SDK -> Programs
-Backend -> RPC
-Backend -> DB
-Backend -> Webhooks
-Oracle Module -> Switchboard
-Oracle Module -> sss-oracle
+    SSS1 --> BASE
+    SSS2 --> COMP
+    SSS2 --> BASE
+    SSS3 --> CONF
+    SSS3 --> BASE
+    COMP --> CORE
+    COMP --> HOOK
+    ORACLE --> ORC
+    CONF --> CORE
+    BASE --> CORE
+    CORE --> SOL
+    HOOK --> SOL
+    ORC --> SOL
 ```
 
 ---
@@ -182,6 +140,24 @@ anchor test
 ### Create a Stablecoin (CLI)
 
 The `sss-token` CLI provides complete token management from the command line.
+
+```bash
+# Link the CLI globally (run once after setup)
+cd cli && npm link && cd ..
+
+# Or run without linking
+npx --prefix cli sss-token <command>
+```
+
+#### Example: Create an SSS-2 stablecoin with metadata
+
+```bash
+sss-token init --preset sss-2 \
+  --name "BRL Digital" \
+  --symbol "BRLD" \
+  --uri "https://example.com/brld-metadata.json" \
+  --decimals 6
+```
 
 #### Token Lifecycle
 
@@ -255,95 +231,6 @@ await stable.compliance.blacklistAdd(address, "Sanctions match");
 
 // SSS-3: Private stablecoin with confidential transfers
 import { ConfidentialMint } from "@stbr/sss-confidential";
-```
-
----
-
-## Project Structure
-
-```
-solana-stablecoin-standard/
-|
-|-- programs/                        # On-chain Anchor programs (Rust)
-|   |-- sss-core/                    # Core mint, burn, freeze, roles, pause
-|   |   +-- src/
-|   |       |-- instructions/        # initialize, mint, burn, freeze, thaw,
-|   |       |                        # pause, unpause, roles, minters, blacklist,
-|   |       |                        # seize, authority transfer
-|   |       |-- state.rs             # Config PDA, minter PDA, blacklist PDA
-|   |       |-- errors.rs
-|   |       |-- events.rs
-|   |       +-- constants.rs
-|   |-- sss-transfer-hook/           # Transfer hook for blacklist enforcement
-|   +-- sss-oracle/                  # Oracle-based mint/redeem with price feeds
-|       +-- src/
-|           |-- instructions/        # initialize, update feed/params, mint/redeem,
-|           |                        # withdraw fees
-|           +-- utils/price.rs       # Price calculation helpers
-|
-|-- sdk/
-|   +-- core/                        # @stbr/sss-token TypeScript SDK
-|       +-- src/
-|           |-- stablecoin.ts        # Main SolanaStablecoin class
-|           |-- presets.ts           # SSS-1 and SSS-2 preset configs
-|           |-- types.ts
-|           |-- instructions/        # Instruction builders
-|           +-- utils/               # PDA derivation, transfer hook helpers
-|
-|-- cli/                             # sss-token CLI (Commander.js)
-|   +-- src/
-|       |-- index.ts                 # Command registration
-|       |-- commands/                # init, mint, burn, freeze, thaw, pause,
-|       |                            # blacklist, seize, minters, roles, holders,
-|       |                            # audit-log, tui, oracle
-|       +-- utils/                   # Config, connection, formatting
-|
-|-- backend/                         # Express.js backend services
-|   |-- docker-compose.yml
-|   +-- src/
-|       |-- index.ts                 # Server entrypoint
-|       |-- config.ts
-|       |-- routes/                  # operations, compliance, status
-|       |-- services/                # mint-burn, event-listener, webhook, compliance
-|       |-- middleware/              # request-id, error-handler
-|       +-- utils/                   # logger (pino), db (SQLite)
-|
-|-- frontend/                        # Next.js admin dashboard
-|   +-- src/
-|       |-- app/                     # Pages: create, mint, freeze, compliance,
-|       |                            # minters, roles, holders, transfer
-|       |-- components/              # Header, Sidebar, StatCard, TxResult
-|       +-- contexts/                # WalletProvider, StablecoinProvider
-|
-|-- tui/                             # React Ink terminal dashboard
-|   +-- src/
-|       |-- app.tsx
-|       |-- screens/                 # Dashboard, Minters, Holders, Events, Compliance
-|       |-- components/              # Header, StatusBar, OperationDialog
-|       +-- hooks/                   # useStablecoinState, useEventLog, useAuditLog
-|
-|-- modules/
-|   |-- oracle/                      # @stbr/sss-oracle-feeds
-|   |   +-- src/
-|   |       |-- index.ts
-|   |       |-- price-feed.ts        # Price feed client
-|   |       +-- known-feeds.ts       # Pre-configured Switchboard feed addresses
-|   +-- confidential/              # @stbr/sss-confidential
-|       +-- src/
-|           |-- index.ts
-|           |-- confidential-mint.ts  # Mint creation with CT extensions
-|           |-- account-manager.ts    # Account setup, approval, deposit
-|           +-- constants.ts          # SSS-3 constraints and extension config
-|
-|-- tests/                           # Integration tests
-|   |-- sss-core.ts
-|   +-- sss-oracle.ts
-|
-|-- scripts/                         # Deployment and utility scripts
-|-- migrations/                      # Anchor migrations
-|-- Anchor.toml                      # Anchor workspace config
-|-- Cargo.toml                       # Rust workspace
-+-- package.json                     # Root package (setup, build, lint)
 ```
 
 ---
@@ -507,12 +394,15 @@ A Next.js admin dashboard with Solana wallet integration for browser-based stabl
 - Freeze / thaw account management
 - Minter and role management
 - Compliance and blacklist management
+- Oracle-based mint and redemption
 - Token holder overview
 - Real-time transaction results
 
 ```bash
 npm run dev:frontend
 ```
+
+![Frontend Dashboard](docs/assets/frontend-dashboard.png)
 
 ### Terminal UI (TUI)
 
@@ -524,10 +414,13 @@ A React Ink terminal dashboard for interactive stablecoin management directly in
 - Holders -- browse token holders
 - Events -- live event log
 - Compliance -- blacklist management
+- Oracle -- price feed status, oracle mint/redeem
 
 ```bash
 sss-token tui
 ```
+
+![TUI Dashboard](docs/assets/tui-dashboard.png)
 
 ### Oracle Module
 
@@ -636,6 +529,95 @@ anchor deploy
 solana program show 4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb
 solana program show 2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9
 solana program show GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH
+```
+
+---
+
+## Project Structure
+
+```
+solana-stablecoin-standard/
+|
+|-- programs/                        # On-chain Anchor programs (Rust)
+|   |-- sss-core/                    # Core mint, burn, freeze, roles, pause
+|   |   +-- src/
+|   |       |-- instructions/        # initialize, mint, burn, freeze, thaw,
+|   |       |                        # pause, unpause, roles, minters, blacklist,
+|   |       |                        # seize, authority transfer
+|   |       |-- state.rs             # Config PDA, minter PDA, blacklist PDA
+|   |       |-- errors.rs
+|   |       |-- events.rs
+|   |       +-- constants.rs
+|   |-- sss-transfer-hook/           # Transfer hook for blacklist enforcement
+|   +-- sss-oracle/                  # Oracle-based mint/redeem with price feeds
+|       +-- src/
+|           |-- instructions/        # initialize, update feed/params, mint/redeem,
+|           |                        # withdraw fees
+|           +-- utils/price.rs       # Price calculation helpers
+|
+|-- sdk/
+|   +-- core/                        # @stbr/sss-token TypeScript SDK
+|       +-- src/
+|           |-- stablecoin.ts        # Main SolanaStablecoin class
+|           |-- presets.ts           # SSS-1 and SSS-2 preset configs
+|           |-- types.ts
+|           |-- instructions/        # Instruction builders
+|           +-- utils/               # PDA derivation, transfer hook helpers
+|
+|-- cli/                             # sss-token CLI (Commander.js)
+|   +-- src/
+|       |-- index.ts                 # Command registration
+|       |-- commands/                # init, mint, burn, freeze, thaw, pause,
+|       |                            # blacklist, seize, minters, roles, holders,
+|       |                            # audit-log, tui, oracle
+|       +-- utils/                   # Config, connection, formatting
+|
+|-- backend/                         # Express.js backend services
+|   |-- docker-compose.yml
+|   +-- src/
+|       |-- index.ts                 # Server entrypoint
+|       |-- config.ts
+|       |-- routes/                  # operations, compliance, status
+|       |-- services/                # mint-burn, event-listener, webhook, compliance
+|       |-- middleware/              # request-id, error-handler
+|       +-- utils/                   # logger (pino), db (SQLite)
+|
+|-- frontend/                        # Next.js admin dashboard
+|   +-- src/
+|       |-- app/                     # Pages: create, mint, freeze, compliance,
+|       |                            # minters, roles, holders, transfer
+|       |-- components/              # Header, Sidebar, StatCard, TxResult
+|       +-- contexts/                # WalletProvider, StablecoinProvider
+|
+|-- tui/                             # React Ink terminal dashboard
+|   +-- src/
+|       |-- app.tsx
+|       |-- screens/                 # Dashboard, Minters, Holders, Events, Compliance
+|       |-- components/              # Header, StatusBar, OperationDialog
+|       +-- hooks/                   # useStablecoinState, useEventLog, useAuditLog
+|
+|-- modules/
+|   |-- oracle/                      # @stbr/sss-oracle-feeds
+|   |   +-- src/
+|   |       |-- index.ts
+|   |       |-- price-feed.ts        # Price feed client
+|   |       +-- known-feeds.ts       # Pre-configured Switchboard feed addresses
+|   +-- confidential/              # @stbr/sss-confidential
+|       +-- src/
+|           |-- index.ts
+|           |-- confidential-mint.ts  # Mint creation with CT extensions
+|           |-- account-manager.ts    # Account setup, approval, deposit
+|           +-- constants.ts          # SSS-3 constraints and extension config
+|
+|-- tests/                           # Integration tests
+|   |-- sss-core.ts
+|   +-- sss-oracle.ts
+|
+|-- scripts/                         # Deployment and utility scripts
+|-- migrations/                      # Anchor migrations
+|-- Anchor.toml                      # Anchor workspace config
+|-- Cargo.toml                       # Rust workspace
++-- package.json                     # Root package (setup, build, lint)
 ```
 
 ---
