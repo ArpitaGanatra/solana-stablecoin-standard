@@ -10,6 +10,7 @@ The Solana Stablecoin Standard provides a compliance tooling framework for stabl
 
 - **SSS-1 (Minimal):** Reactive compliance through freeze authority and emergency pause.
 - **SSS-2 (Compliant):** Proactive compliance through transfer-level blacklist enforcement, regulatory seizure, and an allowlist account model.
+- **SSS-3 (Private):** Privacy-preserving compliance through confidential transfers with encrypted amounts, approval-authority allowlists, and an auditor key for regulatory visibility. Experimental — ZK program currently disabled.
 
 Both tiers share a common on-chain program (`sss-core`) and role-based access control system. The tier is selected at token initialization and is immutable thereafter. This document describes the compliance capabilities of each tier, the audit infrastructure, integration points for sanctions screening, access control design, and operational best practices.
 
@@ -176,6 +177,56 @@ Blacklist entries are managed through two instructions:
 
 ---
 
+## SSS-3 Compliance: Privacy-Preserving Model
+
+SSS-3 introduces a fundamentally different compliance approach: instead of blocking transfers via blacklists, SSS-3 encrypts transfer amounts while maintaining address-level transparency and providing auditor access to all amounts.
+
+### Approval-Authority Allowlist
+
+SSS-3 replaces SSS-2's blacklist enforcement with an allowlist model:
+
+1. `auto_approve_new_accounts = false` on the `ConfidentialTransferMint` extension.
+2. New token accounts cannot participate in confidential transfers until the authority calls `ApproveAccount`.
+3. Only approved accounts can send and receive confidential transfers.
+
+This is functionally equivalent to SSS-2's approach but inverted: deny by default, explicitly approve.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Unapproved: Account created
+    Unapproved --> Approved: Authority approves<br/>(after KYC/AML)
+    Approved --> Active: User deposits
+    Active --> Active: Confidential transfers
+    Approved --> Unapproved: Authority revokes
+```
+
+### Auditor Key
+
+Every SSS-3 mint includes an `auditor_elgamal_pubkey`. When set:
+
+- Every confidential transfer encrypts the amount for the auditor in addition to sender and recipient.
+- The auditor can decrypt all transfer amounts for regulatory reporting.
+- The auditor cannot spend tokens or modify balances.
+
+This provides a compliance bridge: amounts are private on-chain but auditable by authorized parties.
+
+### Privacy Scope
+
+| Visible On-Chain | Encrypted On-Chain |
+|------------------|--------------------|
+| Sender address | Transfer amount |
+| Recipient address | Account balance |
+| Transaction timestamp | |
+| That a confidential transfer occurred | |
+
+### SSS-3 Limitations for Compliance
+
+- **No transfer-level blocking:** Confidential transfers are incompatible with transfer hooks. Compliance is enforced at the account level (approval/revocation), not at the transfer level.
+- **No seizure:** SSS-3 does not use a permanent delegate. Tokens cannot be forcibly transferred. The authority can revoke account approval to prevent future transfers.
+- **Experimental status:** The ZK ElGamal Proof Program is disabled on devnet/mainnet. SSS-3 is a proof-of-concept.
+
+---
+
 ## Audit Trail
 
 ### On-Chain Events
@@ -231,28 +282,12 @@ The indexed events can be exported in structured formats suitable for regulatory
 
 SSS provides the on-chain enforcement layer for sanctions compliance. The off-chain screening layer determines which addresses should be blacklisted. The integration follows this pattern:
 
-```
-Sanctions List Provider (OFAC SDN, EU, UN, etc.)
-    |
-    v
-Compliance Service (off-chain)
-    |
-    +-- Screens addresses against sanctions lists
-    +-- Monitors for list updates
-    +-- Determines blacklist actions
-    |
-    v
-Blacklist Management API
-    |
-    +-- Calls blacklist_address() for new matches
-    +-- Calls remove_from_blacklist() for resolved false positives
-    +-- Signs transactions with blacklister key
-    |
-    v
-sss-core on-chain program
-    |
-    +-- Creates/closes BlacklistEntry PDAs
-    +-- Transfer hook enforces blacklist on every transfer
+```mermaid
+graph TD
+    LISTS["Sanctions List Provider<br/>OFAC SDN · EU · UN"] --> COMP["Compliance Service<br/>(off-chain)"]
+    COMP -->|"Screens addresses<br/>Monitors list updates"| API["Blacklist Management API"]
+    API -->|"blacklist_address()<br/>remove_from_blacklist()"| CORE["sss-core on-chain"]
+    CORE -->|"BlacklistEntry PDAs"| HOOK["Transfer hook enforces<br/>blacklist on every transfer"]
 ```
 
 ### Blacklist Management API
@@ -394,22 +429,27 @@ This pattern ensures that the new authority address is valid and controlled by t
 
 ## Compliance Tier Selection Guide
 
-| Requirement | SSS-1 | SSS-2 |
-|-------------|-------|-------|
-| Mint/burn controls | Yes | Yes |
-| Role-based access control | Yes | Yes |
-| Individual account freeze | Yes | Yes |
-| Emergency pause | Yes | Yes |
-| On-chain audit trail | Yes | Yes |
-| Transfer-level blacklist enforcement | No | Yes |
-| Regulatory seizure | No | Yes |
-| Allowlist (default frozen accounts) | No | Yes |
-| OFAC sanctions compliance (proactive) | No | Yes |
-| GENIUS Act compliance controls | Partial | Yes |
+| Requirement | SSS-1 | SSS-2 | SSS-3 |
+|-------------|-------|-------|-------|
+| Mint/burn controls | Yes | Yes | Yes |
+| Role-based access control | Yes | Yes | Yes |
+| Individual account freeze | Yes | Yes | Yes |
+| Emergency pause | Yes | Yes | Yes |
+| On-chain audit trail | Yes | Yes | Yes |
+| Transfer-level blacklist enforcement | No | Yes | No |
+| Regulatory seizure | No | Yes | No |
+| Allowlist (account approval) | No | Yes | Yes |
+| Amount privacy (encrypted) | No | No | Yes |
+| Auditor key for regulatory access | No | No | Yes |
+| OFAC sanctions compliance (proactive) | No | Yes | Partial |
+| GENIUS Act compliance controls | Partial | Yes | Partial |
+| Status | Active | Active | Experimental |
 
 **Choose SSS-1 if:** Your token does not require transfer-level enforcement, you operate in a lightly regulated environment, or your compliance is primarily off-chain.
 
 **Choose SSS-2 if:** You are subject to OFAC sanctions requirements, the GENIUS Act, banking regulations, or any framework that requires the issuer to prevent non-compliant transfers at execution time.
+
+**Choose SSS-3 if:** You need amount privacy for institutional settlement, payroll, or jurisdictions requiring transaction confidentiality, and you can enforce compliance at the account level (approval/revocation) rather than at the transfer level. Note: SSS-3 is experimental and cannot be deployed to devnet/mainnet until the ZK ElGamal Proof Program is re-enabled.
 
 ---
 
@@ -419,3 +459,4 @@ This pattern ensures that the new authority address is valid and controlled by t
 - **sss-transfer-hook program:** `2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9`
 - **SSS-1 specification:** [SSS-1.md](./SSS-1.md)
 - **SSS-2 specification:** [SSS-2.md](./SSS-2.md)
+- **SSS-3 specification:** [SSS-3.md](./SSS-3.md)

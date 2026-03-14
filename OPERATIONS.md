@@ -75,6 +75,28 @@ sss-token init \
   --keypair ./authority.json
 ```
 
+### Creating an SSS-3 Stablecoin (Private, Experimental)
+
+SSS-3 adds confidential transfers to SSS-1 for privacy-preserving stablecoins. Transfer amounts and balances are encrypted on-chain.
+
+> **Note:** The ZK ElGamal Proof Program is currently disabled on devnet/mainnet. Use a local test validator.
+
+```bash
+sss-token init \
+  --preset sss-3 \
+  --name "Private BRL" \
+  --symbol "pBRL" \
+  --decimals 6 \
+  --keypair ./authority.json
+```
+
+SSS-3 initialization:
+- Creates a Token-2022 mint with metadata (same as SSS-1)
+- Does **not** enable transfer hooks or permanent delegate (incompatible with confidential transfers)
+- Confidential transfer extension setup requires additional client-side steps via the `@stbr/sss-confidential` module
+
+See [SSS-3.md](./SSS-3.md) for the full specification and lifecycle.
+
 The SSS-2 preset automatically:
 - Enables the permanent delegate (allows seize operations)
 - Enables the transfer hook (enforces blacklist checks on every transfer)

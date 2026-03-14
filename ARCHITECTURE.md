@@ -22,33 +22,35 @@ Token-2022.
 The system is organized into three layers. Each layer builds on the one
 below it, and consumers pick the layer that matches their requirements.
 
-```
-+---------------------------------------------------------------+
-|  Layer 3 -- Standard Presets                                   |
-|  SSS-1 (Minimal)  |  SSS-2 (Compliant)                       |
-|  - Mint/burn       |  - Everything in SSS-1                    |
-|  - Metadata        |  + Transfer hook (blacklist enforcement)  |
-|  - Pause/freeze    |  + Permanent delegate (seizure)           |
-|  - Role mgmt       |  + Default-frozen accounts                |
-+---------------------------------------------------------------+
-|  Layer 2 -- Modules                                            |
-|  +---------------------------+ +----------------------------+  |
-|  | Compliance Module         | | Oracle Module              |  |
-|  | - Transfer hook program   | | - Switchboard pull feeds   |  |
-|  |   enforces blacklist on   | |   for non-USD pegs         |  |
-|  |   every transfer          | | - Collateral vault pattern |  |
-|  | - Permanent delegate      | | - CPI into sss-core for   |  |
-|  |   enables seizure         | |   minting/redeeming        |  |
-|  +---------------------------+ +----------------------------+  |
-+---------------------------------------------------------------+
-|  Layer 1 -- Base SDK (sss-core)                                |
-|  - Token-2022 token creation with mint/freeze authority        |
-|  - Metadata pointer (on-mint metadata via Token-2022)          |
-|  - Role management via PDA accounts                            |
-|  - Minter quotas, pause, freeze, burn                          |
-+---------------------------------------------------------------+
-|  Solana Runtime / Token-2022 / Switchboard On-Demand           |
-+---------------------------------------------------------------+
+```mermaid
+graph TD
+    subgraph "Layer 3 — Standard Presets"
+        SSS1["SSS-1 Minimal<br/>Mint/burn · Metadata · Pause/freeze · Role mgmt"]
+        SSS2["SSS-2 Compliant<br/>Everything in SSS-1<br/>+ Transfer hook blacklist<br/>+ Permanent delegate seizure<br/>+ Default-frozen accounts"]
+        SSS3["SSS-3 Private ⚗️<br/>Everything in SSS-1<br/>+ Confidential transfers<br/>+ Approval-authority allowlist<br/>+ Auditor key"]
+    end
+
+    subgraph "Layer 2 — Modules"
+        COMP["Compliance Module<br/>Transfer hook enforces blacklist<br/>Permanent delegate enables seizure"]
+        ORC["Oracle Module<br/>Switchboard pull feeds for non-USD pegs<br/>Collateral vault pattern"]
+        CONF["Confidential Module<br/>ConfidentialTransferMint extension<br/>ElGamal encryption · ZK proofs"]
+    end
+
+    subgraph "Layer 1 — Base SDK (sss-core)"
+        BASE["Token-2022 token creation with mint/freeze authority<br/>Metadata pointer · Role management via PDAs<br/>Minter quotas · Pause · Freeze · Burn"]
+    end
+
+    RUNTIME["Solana Runtime · Token-2022 · Switchboard On-Demand"]
+
+    SSS1 --> BASE
+    SSS2 --> COMP
+    SSS2 --> BASE
+    SSS3 --> CONF
+    SSS3 --> BASE
+    COMP --> BASE
+    ORC --> BASE
+    CONF --> BASE
+    BASE --> RUNTIME
 ```
 
 ### Layer 1 -- Base SDK
@@ -90,9 +92,12 @@ Presets are opinionated configurations of the base program:
 |--------|-------------|-----------------|
 | **SSS-1** (Minimal) | Basic stablecoin with mint, burn, pause, freeze, metadata. No compliance features. | `enable_permanent_delegate: false`, `enable_transfer_hook: false`, `default_account_frozen: false` |
 | **SSS-2** (Compliant) | Full regulatory toolkit. Blacklist enforcement on every transfer, seizure via permanent delegate, new accounts default to frozen (require explicit thaw). | `enable_permanent_delegate: true`, `enable_transfer_hook: true`, `default_account_frozen: true`, `transfer_hook_program_id: Some(<hook_program>)` |
+| **SSS-3** (Private) | Privacy-preserving stablecoin with confidential transfers and allowlist model. Amounts and balances encrypted on-chain. Experimental — ZK program currently disabled. | `enable_permanent_delegate: false`, `enable_transfer_hook: false`, `enable_confidential_transfer: true` |
 
 Both presets use the same `sss-core` program -- the difference is which
 Token-2022 extensions are enabled at initialization time.
+
+SSS-3 also uses `sss-core` for base token functionality but adds Token-2022's `ConfidentialTransferMint` extension client-side. Transfer hooks are incompatible with confidential transfers, so SSS-3 uses an approval-authority allowlist pattern instead of SSS-2's blacklist model.
 
 ---
 
@@ -135,19 +140,15 @@ authority, freeze authority, and (when enabled) permanent delegate.
 
 **Role hierarchy:**
 
-```
-Master Authority
-  |
-  +-- Can assign all roles below
-  +-- Can add/remove/update minters
-  +-- Can transfer authority (two-step)
-  |
-  +-- Minter ......... mint_tokens (with per-minter quota)
-  +-- Burner ......... burn_tokens
-  +-- Pauser ......... pause / unpause
-  +-- Freezer ........ freeze_account / thaw_account
-  +-- Blacklister .... blacklist_address / remove_from_blacklist
-  +-- Seizer ......... seize (requires permanent delegate enabled)
+```mermaid
+graph TD
+    AUTH["Master Authority"] --> MINTER["Minter<br/>mint_tokens (with quota)"]
+    AUTH --> BURNER["Burner<br/>burn_tokens"]
+    AUTH --> PAUSER["Pauser<br/>pause / unpause"]
+    AUTH --> FREEZER["Freezer<br/>freeze_account / thaw_account"]
+    AUTH --> BL["Blacklister<br/>blacklist_address / remove_from_blacklist"]
+    AUTH --> SEIZER["Seizer<br/>seize (requires permanent delegate)"]
+    AUTH -->|"Can assign all roles<br/>Add/remove minters<br/>Transfer authority"| AUTH
 ```
 
 ### 2. sss-transfer-hook
@@ -224,38 +225,53 @@ default 150 slots / ~60s) and minimum sample counts (`min_samples`).
 
 ### PDA Derivation Map
 
-```
-sss-core (4H5fRECQ4HLMGhabHEkzAya34pVZn8WBMqUw5TyhMAvb)
-  |
-  +-- StablecoinConfig
-  |     seeds: ["stablecoin_config", mint_pubkey]
-  |     Holds: authority, all role keys, pause state, feature flags, bump
-  |     Size:  8 + InitSpace (dynamic, includes 32-byte reserved block)
-  |
-  +-- MinterInfo
-  |     seeds: ["minter_info", config_pubkey, minter_pubkey]
-  |     Holds: quota, minted count, active flag, unlimited flag, bump
-  |
-  +-- BlacklistEntry
-        seeds: ["blacklist_seed", config_pubkey, address_pubkey]
-        Holds: config ref, blacklisted address, bump
-
-sss-transfer-hook (2VymphXYSrCV4qtS3FyiGmNQvcNrEXNUyRUh9MhDTLH9)
-  |
-  +-- ExtraAccountMetaList
-        seeds: ["extra-account-metas", mint_pubkey]
-        Holds: TLV-encoded resolution rules for 4 extra accounts
-
-sss-oracle (GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH)
-  |
-  +-- OracleConfig
-  |     seeds: ["oracle_config", stablecoin_mint_pubkey]
-  |     Holds: authority, mints, feed address, vault, spread, staleness,
-  |            decimals, bumps, 32-byte reserved block
-  |
-  +-- VaultAuthority
-        seeds: ["vault_authority", oracle_config_pubkey]
-        Purpose: PDA signer for vault token account + sss-core CPI minter
+```mermaid
+erDiagram
+    STABLECOIN_CONFIG ||--o{ MINTER_INFO : "has many"
+    STABLECOIN_CONFIG ||--o{ BLACKLIST_ENTRY : "has many"
+    STABLECOIN_CONFIG {
+        pubkey authority
+        pubkey mint
+        pubkey pauser
+        pubkey burner
+        pubkey freezer
+        pubkey blacklister
+        pubkey seizer
+        bool is_paused
+        bool enable_permanent_delegate
+        bool enable_transfer_hook
+        u8 bump
+    }
+    MINTER_INFO {
+        pubkey config
+        pubkey minter
+        u64 quota
+        u64 minted
+        bool active
+        bool unlimited
+        u8 bump
+    }
+    BLACKLIST_ENTRY {
+        pubkey config
+        pubkey address
+        u8 bump
+    }
+    EXTRA_ACCOUNT_META_LIST {
+        bytes tlv_data
+    }
+    ORACLE_CONFIG ||--|| VAULT_AUTHORITY : "owns"
+    ORACLE_CONFIG {
+        pubkey authority
+        pubkey stablecoin_mint
+        pubkey collateral_mint
+        pubkey oracle_feed
+        pubkey vault
+        u16 spread_bps
+        bool is_active
+    }
+    VAULT_AUTHORITY {
+        string purpose_PDA_signer
+    }
 ```
 
 ### StablecoinConfig Fields
@@ -293,20 +309,17 @@ sss-oracle (GnEKCqWBDCTzLHrCTiRT6Mi1a37PHSsAoFBowLKPT2PH)
 Minter calls `sss-core::mint_tokens` directly. The config PDA signs the
 Token-2022 `mint_to` CPI.
 
-```
-Minter (Signer)
-    |
-    v
-sss-core::mint_tokens
-    |  1. Verify minter is active + quota
-    |  2. Increment minted count
-    |
-    +---> CPI: Token-2022::mint_to
-          |  authority = StablecoinConfig PDA (signer via seeds)
-          |  mint      = stablecoin mint
-          |  to        = recipient token account
-          v
-    Tokens minted to recipient
+```mermaid
+sequenceDiagram
+    participant Minter
+    participant sss-core
+    participant Token-2022
+
+    Minter->>sss-core: mint_tokens(amount)
+    sss-core->>sss-core: Verify minter active + quota
+    sss-core->>sss-core: Increment minted count
+    sss-core->>Token-2022: CPI: mint_to (Config PDA signs)
+    Token-2022-->>Minter: Tokens minted to recipient
 ```
 
 ### SSS-2 Transfer Flow (with Blacklist Enforcement)
@@ -314,28 +327,29 @@ sss-core::mint_tokens
 User initiates a standard `transfer_checked`. Token-2022 automatically
 invokes the transfer hook.
 
-```
-User
-  |
-  v
-Token-2022::transfer_checked
-  |
-  |  Token-2022 reads TransferHook extension from mint
-  |  Resolves ExtraAccountMetaList PDA
-  |  Derives extra accounts (config, blacklist PDAs)
-  |
-  +---> CPI: sss-transfer-hook::transfer_hook
-        |
-        |  1. Verify source token is in "transferring" state
-        |  2. If owner == config PDA (seize), allow immediately
-        |  3. Check source_blacklist_entry.data_is_empty()
-        |     - If account exists -> REJECT (Blacklisted)
-        |  4. Check dest_blacklist_entry.data_is_empty()
-        |     - If account exists -> REJECT (Blacklisted)
-        |  5. Return Ok(()) -> transfer proceeds
-        |
-        v
-  Transfer completes (or reverts if blacklisted)
+```mermaid
+sequenceDiagram
+    participant User
+    participant Token-2022
+    participant sss-transfer-hook
+    participant BlacklistPDAs
+
+    User->>Token-2022: transfer_checked
+    Token-2022->>Token-2022: Read TransferHook extension
+    Token-2022->>sss-transfer-hook: CPI: transfer_hook
+    sss-transfer-hook->>sss-transfer-hook: Verify "transferring" state
+    alt Owner is Config PDA (seize)
+        sss-transfer-hook-->>Token-2022: ALLOW
+    else Normal transfer
+        sss-transfer-hook->>BlacklistPDAs: Check source blacklist
+        sss-transfer-hook->>BlacklistPDAs: Check dest blacklist
+        alt Either blacklisted
+            sss-transfer-hook-->>Token-2022: REJECT (Blacklisted)
+        else Both clear
+            sss-transfer-hook-->>Token-2022: ALLOW
+        end
+    end
+    Token-2022-->>User: Transfer completes or reverts
 ```
 
 ### SSS-2 Seize Flow
@@ -343,25 +357,21 @@ Token-2022::transfer_checked
 Seizer authority triggers a transfer from any account to treasury, using
 the config PDA as permanent delegate.
 
-```
-Seizer (Signer)
-    |
-    v
-sss-core::seize
-    |  1. Verify caller is seizer role
-    |  2. Verify permanent delegate is enabled
-    |  3. Build transfer_checked instruction with config PDA as authority
-    |  4. Append remaining_accounts (transfer hook extra metas)
-    |
-    +---> invoke_signed: Token-2022::transfer_checked
-          |  from      = target token account
-          |  to        = treasury token account
-          |  authority = StablecoinConfig PDA (permanent delegate)
-          |
-          +---> CPI: sss-transfer-hook::transfer_hook
-                |  owner == config PDA -> allow immediately
-                v
-    Tokens seized to treasury
+```mermaid
+sequenceDiagram
+    participant Seizer
+    participant sss-core
+    participant Token-2022
+    participant sss-transfer-hook
+
+    Seizer->>sss-core: seize(from, treasury, amount)
+    sss-core->>sss-core: Verify seizer role + permanent delegate
+    sss-core->>Token-2022: invoke_signed: transfer_checked<br/>(Config PDA as permanent delegate)
+    Token-2022->>sss-transfer-hook: CPI: transfer_hook
+    sss-transfer-hook->>sss-transfer-hook: owner == Config PDA → ALLOW
+    sss-transfer-hook-->>Token-2022: ALLOW
+    Token-2022-->>sss-core: Transfer complete
+    sss-core-->>Seizer: Tokens seized to treasury
 ```
 
 ### Oracle Mint Flow
@@ -369,72 +379,39 @@ sss-core::seize
 User deposits collateral and receives stablecoins at the oracle-determined
 exchange rate.
 
-```
-User
-  |
-  v
-sss-oracle::mint_with_oracle(stablecoin_amount, max_collateral)
-  |
-  |  1. Read Switchboard pull feed
-  |     - Validate staleness (max_stale_slots)
-  |     - Validate sample count (min_samples)
-  |  2. Calculate collateral_required
-  |     = amount * price / 10^18 * decimal_adj * (1 + spread)
-  |  3. Slippage check: collateral_required <= max_collateral
-  |
-  +---> CPI: SPL Token::transfer
-  |     |  from = user collateral account
-  |     |  to   = collateral vault
-  |     v
-  |     Collateral deposited
-  |
-  +---> CPI: sss-core::mint_tokens
-        |  minter    = vault_authority PDA (registered as minter in sss-core)
-        |  authority = StablecoinConfig PDA (signs mint_to internally)
-        v
-  Stablecoins minted to user
+```mermaid
+sequenceDiagram
+    participant User
+    participant sss-oracle
+    participant Switchboard
+    participant Token
+    participant sss-core
+    participant Token-2022
+
+    User->>sss-oracle: mint_with_oracle(amount, max_collateral)
+    sss-oracle->>Switchboard: Read pull feed price
+    sss-oracle->>sss-oracle: Calculate collateral_required
+    sss-oracle->>sss-oracle: Slippage check
+    sss-oracle->>Token: CPI: SPL transfer (collateral to vault)
+    sss-oracle->>sss-core: CPI: mint_tokens
+    sss-core->>Token-2022: CPI: mint_to (Config PDA signs)
+    Token-2022-->>User: Stablecoins minted
 ```
 
 ### Program Interaction Diagram
 
-```
-+------------------+         +------------------------+
-|                  |  CPI    |                        |
-|   sss-oracle     +-------->|      sss-core          |
-|                  |  mint   |                        |
-| - price feeds    |  tokens | - config PDA           |
-| - vault mgmt    |         | - role enforcement      |
-| - collateral    |         | - mint/burn/freeze      |
-|   accounting     |         | - blacklist state       |
-|                  |         |                        |
-+------------------+         +-----+------------------+
-                                   |
-                                   | PDA signs as
-                                   | mint authority /
-                                   | permanent delegate
-                                   |
-                                   v
-                             +-----+------------------+
-                             |                        |
-                             |   Token-2022           |
-                             |                        |
-                             | - mint_to              |
-                             | - transfer_checked ---------+
-                             | - freeze/thaw          |    |
-                             |                        |    |
-                             +------------------------+    |
-                                                           | automatic
-                                                           | hook CPI
-                                                           v
-                             +----------------------------+
-                             |                            |
-                             |   sss-transfer-hook        |
-                             |                            |
-                             | - blacklist check          |
-                             | - reads sss-core PDAs      |
-                             | - no own state (stateless) |
-                             |                            |
-                             +----------------------------+
+```mermaid
+graph TD
+    ORC["sss-oracle"] -->|"CPI: mint_tokens"| CORE["sss-core"]
+    CORE -->|"PDA signs as<br/>mint authority /<br/>permanent delegate"| T22["Token-2022"]
+    T22 -->|"automatic<br/>hook CPI"| HOOK["sss-transfer-hook"]
+    HOOK -->|"reads blacklist PDAs"| CORE
+
+    ORC -.->|"reads price"| SW["Switchboard"]
+
+    style HOOK fill:#f9f,stroke:#333
+    style CORE fill:#bbf,stroke:#333
+    style T22 fill:#bfb,stroke:#333
 ```
 
 ---
@@ -453,16 +430,21 @@ blacklister, seizer) is a separate public key stored in the
 
 Authority transfers follow a propose-accept pattern:
 
-```
-Current Authority                    New Authority
-      |                                    |
-      +-- transfer_authority(new) -------->|
-      |   (sets pending_authority)         |
-      |                                    |
-      |   [optional: cancel_authority_transfer]
-      |                                    |
-      |<--------- accept_authority --------+
-      |   (pending becomes authority)      |
+```mermaid
+sequenceDiagram
+    participant Current as Current Authority
+    participant Config as Config PDA
+    participant New as New Authority
+
+    Current->>Config: transfer_authority(new)
+    Note over Config: Sets pending_authority
+    alt Cancel
+        Current->>Config: cancel_authority_transfer
+        Note over Config: Clears pending_authority
+    else Accept
+        New->>Config: accept_authority
+        Note over Config: pending becomes authority
+    end
 ```
 
 This prevents accidental or malicious transfers to incorrect addresses.
@@ -522,46 +504,30 @@ interface for managing a deployed stablecoin.
 
 ### Component Overview
 
-```
-+---------------------------------------------------+
-|  Express.js Server                                 |
-|                                                    |
-|  Middleware:                                        |
-|  - Request ID (UUID per request)                   |
-|  - Pino HTTP logging (structured JSON)             |
-|  - API key authentication (x-api-key header)       |
-|  - Error handler (centralized)                     |
-|                                                    |
-|  Routes:                                           |
-|  - /api/health .............. Health check (no auth)|
-|  - /api/operations .......... Mint, burn operations |
-|  - /api/status .............. Config, supply, events|
-|  - /api/compliance .......... Blacklist, webhooks   |
-+---------------------------------------------------+
-         |              |             |            |
-         v              v             v            v
-+-------------+ +-------------+ +-----------+ +----------+
-| MintBurn    | | EventListener| | Compliance| | Webhook  |
-| Service     | | Service      | | Service   | | Service  |
-+-------------+ +-------------+ +-----------+ +----------+
-| - Build mint| | - Poll for   | | - Blacklist| | - Store  |
-|   and burn  | |   program    | |   mgmt     | |   webhook|
-|   txns      | |   events     | | - Freeze/  | |   URLs   |
-| - Submit to | | - Parse logs | |   thaw     | | - Dispatch|
-|   Solana    | | - Store in   | | - Transfer | |   events |
-|             | |   SQLite     | |   hook     | | - Retry  |
-+------+------+ +------+------+ +-----+-----+ +----+-----+
-       |               |              |             |
-       +-------+-------+--------------+-------------+
-               |
-               v
-         +-----+------+
-         |   SQLite    |
-         |             |
-         | - Events    |
-         | - Webhooks  |
-         | - State     |
-         +-------------+
+```mermaid
+graph TD
+    subgraph "Express.js Server"
+        MW["Middleware<br/>Request ID · Pino HTTP · API Key Auth · Error Handler"]
+        R1["/api/health"]
+        R2["/api/operations"]
+        R3["/api/status"]
+        R4["/api/compliance"]
+    end
+
+    MW --> R1
+    MW --> R2
+    MW --> R3
+    MW --> R4
+
+    R2 --> MB["MintBurn Service"]
+    R3 --> EL["EventListener Service"]
+    R4 --> CS["Compliance Service"]
+    R4 --> WS["Webhook Service"]
+
+    MB --> DB["SQLite"]
+    EL --> DB
+    CS --> DB
+    WS --> DB
 ```
 
 ### Services
@@ -611,6 +577,7 @@ stablecoin-standard/
     oracle/              TypeScript SDK for sss-oracle
   modules/
     oracle/              Oracle module integration
+    confidential/        Confidential transfer module (SSS-3, experimental)
   backend/               Express.js API server
     src/
       services/          MintBurn, EventListener, Compliance, Webhook

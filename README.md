@@ -34,7 +34,7 @@ Built by [Superteam Brazil](https://superteam.fun).
 
 The Solana Stablecoin Standard (SSS) provides everything needed to launch, manage, and operate a stablecoin on Solana:
 
-- **Two opinionated presets** -- SSS-1 (minimal) and SSS-2 (compliant) -- so you can go from zero to a deployed token in minutes.
+- **Three opinionated presets** -- SSS-1 (minimal), SSS-2 (compliant), and SSS-3 (private, experimental) -- so you can go from zero to a deployed token in minutes.
 - **On-chain programs** written in Anchor/Rust for mint authority, role management, transfer hooks, blacklist enforcement, and oracle-based minting/redemption.
 - **TypeScript SDK** for programmatic access to all on-chain operations.
 - **CLI tool** (`sss-token`) for command-line token management.
@@ -42,81 +42,87 @@ The Solana Stablecoin Standard (SSS) provides everything needed to launch, manag
 - **Frontend dashboard** (Next.js) for browser-based administration.
 - **Terminal UI** (React Ink) for interactive terminal-based management.
 - **Oracle module** for Switchboard price feeds, non-USD peg support, and depeg monitoring.
+- **Confidential transfer module** (experimental) for privacy-preserving stablecoins with encrypted balances.
 
 ---
 
 ## Architecture
 
-```
-+---------------------------------------------------------------+
-|                    Layer 3 -- Standard Presets                  |
-|                                                                |
-|   SSS-1 (Minimal Stablecoin)    SSS-2 (Compliant Stablecoin)  |
-+---------------------------------------------------------------+
-                              |
-+---------------------------------------------------------------+
-|                      Layer 2 -- Modules                        |
-|                                                                |
-|   Compliance                       Oracle                      |
-|   - Transfer Hook (blacklist)      - Switchboard price feeds   |
-|   - Permanent Delegate (seize)     - Non-USD peg support       |
-|   - Blacklist PDAs                 - Depeg monitoring           |
-+---------------------------------------------------------------+
-                              |
-+---------------------------------------------------------------+
-|                     Layer 1 -- Base SDK                         |
-|                                                                |
-|   Token Creation (Token-2022)    Role Management               |
-|   - Mint / Burn / Freeze / Thaw  - Multi-minter with caps     |
-|   - Metadata extension           - Authority transfer          |
-|   - Pause / Unpause              - Granular permissions        |
-+---------------------------------------------------------------+
-                              |
-+---------------------------------------------------------------+
-|                     On-Chain Programs                           |
-|                                                                |
-|   sss-core              sss-transfer-hook       sss-oracle     |
-|   4H5fRECQ...MAvb       2VymphXY...DTLH9       GnEKCqWB...PH  |
-+---------------------------------------------------------------+
-                              |
-+---------------------------------------------------------------+
-|                       Solana (Token-2022)                       |
-+---------------------------------------------------------------+
+```mermaid
+graph TD
+    subgraph "Layer 3 — Standard Presets"
+        SSS1["SSS-1<br/>Minimal Stablecoin"]
+        SSS2["SSS-2<br/>Compliant Stablecoin"]
+        SSS3["SSS-3<br/>Private Stablecoin ⚗️"]
+    end
+
+    subgraph "Layer 2 — Modules"
+        COMP["Compliance Module<br/>Transfer Hook · Blacklist · Permanent Delegate"]
+        ORACLE["Oracle Module<br/>Switchboard Feeds · Non-USD Pegs"]
+        CONF["Confidential Module<br/>Encrypted Balances · Allowlists"]
+    end
+
+    subgraph "Layer 1 — Base SDK"
+        BASE["Token Creation (Token-2022)<br/>Mint · Burn · Freeze · Pause · Roles"]
+    end
+
+    subgraph "On-Chain Programs"
+        CORE["sss-core<br/>4H5fRECQ...MAvb"]
+        HOOK["sss-transfer-hook<br/>2VymphXY...DTLH9"]
+        ORC["sss-oracle<br/>GnEKCqWB...PH"]
+    end
+
+    SOL["Solana Runtime · Token-2022"]
+
+    SSS1 --> BASE
+    SSS2 --> COMP
+    SSS2 --> BASE
+    SSS3 --> CONF
+    SSS3 --> BASE
+    COMP --> CORE
+    COMP --> HOOK
+    ORACLE --> ORC
+    CONF --> CORE
+    BASE --> CORE
+    CORE --> SOL
+    HOOK --> SOL
+    ORC --> SOL
 ```
 
 ### Component Map
 
-```
-sss-token (CLI)  ---->  @stbr/sss-token (SDK)  ---->  On-Chain Programs
-                                                            |
-Frontend (Next.js)  ---------------------------------->     |
-                                                            |
-Backend (Express.js)  ------>  Event Listener  ------>  Solana RPC
-                   |
-                   +------>  SQLite (audit log)
-                   +------>  Webhooks (notifications)
-
-TUI (React Ink)  ---->  @stbr/sss-token (SDK)  ---->  On-Chain Programs
-
-Oracle Module  ---->  Switchboard Feeds  ---->  sss-oracle Program
+```mermaid
+graph LR
+    CLI["sss-token CLI"] --> SDK["@stbr/sss-token SDK"]
+    FE["Frontend<br/>Next.js"] --> SDK
+    TUI["TUI<br/>React Ink"] --> SDK
+    SDK --> PROG["On-Chain Programs"]
+    BE["Backend<br/>Express.js"] --> RPC["Solana RPC"]
+    BE --> DB["SQLite"]
+    BE --> WH["Webhooks"]
+    ORACLE_MOD["Oracle Module"] --> SW["Switchboard Feeds"]
+    ORACLE_MOD --> ORC_PROG["sss-oracle Program"]
 ```
 
 ---
 
 ## Standards Comparison
 
-| Feature                  | SSS-1 (Minimal)       | SSS-2 (Compliant)         |
-|--------------------------|-----------------------|---------------------------|
-| Mint Authority           | Yes                   | Yes                       |
-| Freeze Authority         | Yes                   | Yes                       |
-| Token Metadata           | Yes                   | Yes                       |
-| Permanent Delegate       | --                    | Yes                       |
-| Transfer Hook            | --                    | Yes                       |
-| Blacklist Enforcement    | --                    | Yes (on-chain PDAs)       |
-| Asset Seizure            | --                    | Yes (via permanent delegate) |
-| Pause / Unpause          | Yes                   | Yes                       |
-| Multi-Minter with Caps   | Yes                   | Yes                       |
-| Target Use Case          | DAO treasuries, internal tokens, ecosystem settlement | Regulated USDC/USDT-class tokens |
+| Feature                  | SSS-1 (Minimal)       | SSS-2 (Compliant)         | SSS-3 (Private) |
+|--------------------------|-----------------------|---------------------------|-----------------|
+| Mint Authority           | Yes                   | Yes                       | Yes |
+| Freeze Authority         | Yes                   | Yes                       | Yes |
+| Token Metadata           | Yes                   | Yes                       | Yes |
+| Permanent Delegate       | --                    | Yes                       | -- |
+| Transfer Hook            | --                    | Yes                       | -- (incompatible) |
+| Blacklist Enforcement    | --                    | Yes (on-chain PDAs)       | -- |
+| Confidential Transfers   | --                    | --                        | Yes |
+| Allowlist (approval)     | --                    | --                        | Yes |
+| Asset Seizure            | --                    | Yes (via permanent delegate) | -- |
+| Pause / Unpause          | Yes                   | Yes                       | Yes |
+| Multi-Minter with Caps   | Yes                   | Yes                       | Yes |
+| Target Use Case          | DAO treasuries, internal tokens | Regulated USDC/USDT-class tokens | Privacy-preserving stablecoins |
+| Status                   | Active                | Active                    | Experimental |
 
 ---
 
@@ -156,6 +162,9 @@ sss-token init --preset sss-1
 # Initialize an SSS-2 compliant stablecoin
 sss-token init --preset sss-2
 
+# Initialize an SSS-3 private stablecoin (experimental)
+sss-token init --preset sss-3
+
 # Mint tokens
 sss-token mint <recipient> <amount>
 
@@ -181,6 +190,9 @@ await stable.mint({ recipient, amount: 1_000_000, minter });
 
 // Blacklist an address (SSS-2 only)
 await stable.compliance.blacklistAdd(address, "Sanctions match");
+
+// SSS-3: Private stablecoin with confidential transfers
+import { ConfidentialMint } from "@stbr/sss-confidential";
 ```
 
 ---
@@ -249,11 +261,17 @@ solana-stablecoin-standard/
 |       +-- hooks/                   # useStablecoinState, useEventLog, useAuditLog
 |
 |-- modules/
-|   +-- oracle/                      # @stbr/sss-oracle-feeds
+|   |-- oracle/                      # @stbr/sss-oracle-feeds
+|   |   +-- src/
+|   |       |-- index.ts
+|   |       |-- price-feed.ts        # Price feed client
+|   |       +-- known-feeds.ts       # Pre-configured Switchboard feed addresses
+|   +-- confidential/              # @stbr/sss-confidential
 |       +-- src/
 |           |-- index.ts
-|           |-- price-feed.ts        # Price feed client
-|           +-- known-feeds.ts       # Pre-configured Switchboard feed addresses
+|           |-- confidential-mint.ts  # Mint creation with CT extensions
+|           |-- account-manager.ts    # Account setup, approval, deposit
+|           +-- constants.ts          # SSS-3 constraints and extension config
 |
 |-- tests/                           # Integration tests
 |   |-- sss-core.ts
@@ -278,6 +296,7 @@ The `sss-token` CLI provides complete token management from the command line.
 |------------------------------------|------------------------------------|
 | `sss-token init --preset sss-1`   | Create a minimal stablecoin        |
 | `sss-token init --preset sss-2`   | Create a compliant stablecoin      |
+| `sss-token init --preset sss-3`   | Create a private stablecoin (experimental) |
 | `sss-token mint <recipient> <amount>` | Mint tokens to a recipient      |
 | `sss-token burn <amount>`          | Burn tokens from your account      |
 | `sss-token freeze <address>`       | Freeze a token account             |
@@ -414,6 +433,10 @@ Presets.SSS_1
 // SSS-2: Compliant -- metadata + permanent delegate + transfer hook
 Presets.SSS_2
 // { enableMetadata: true, enablePermanentDelegate: true, enableTransferHook: true }
+
+// SSS-3: Private -- metadata + confidential transfers (experimental)
+Presets.SSS_3
+// { enableMetadata: true, enablePermanentDelegate: false, enableTransferHook: false, enableConfidentialTransfer: true }
 ```
 
 ---
@@ -529,6 +552,16 @@ sss-token oracle mint
 # Redeem using oracle price
 sss-token oracle redeem
 ```
+
+### SSS-3: Private Stablecoin (Experimental)
+
+SSS-3 extends SSS-1 with confidential transfers and scoped allowlists for privacy-preserving stablecoins. Transfer amounts and balances are encrypted on-chain while addresses remain public.
+
+> **Status:** The ZK ElGamal Proof Program required for confidential transfers is currently disabled on devnet and mainnet. Use a local test validator for testing.
+
+**Module:** `@stbr/sss-confidential` (`modules/confidential/`)
+
+See [SSS-3.md](./SSS-3.md) for the full specification.
 
 ---
 

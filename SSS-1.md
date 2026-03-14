@@ -262,6 +262,23 @@ Cancels a pending authority transfer, clearing the `pending_authority` field.
 
 **Events emitted:** `AuthorityTransferCancelled { mint, authority, cancelled_pending }`
 
+```mermaid
+sequenceDiagram
+    participant Current as Current Authority
+    participant Config as Config PDA
+    participant New as New Authority
+
+    Current->>Config: transfer_authority(new)
+    Note over Config: Sets pending_authority
+    alt Accept
+        New->>Config: accept_authority
+        Note over Config: Authority transferred
+    else Cancel
+        Current->>Config: cancel_authority_transfer
+        Note over Config: pending_authority cleared
+    end
+```
+
 ---
 
 ## Role Model
@@ -275,6 +292,15 @@ SSS-1 enforces separation of duties through distinct roles, each stored as a `Pu
 | **Burner** | Burn tokens from a token account | Initializer |
 | **Pauser** | Pause and unpause all operations | Initializer |
 | **Freezer** | Freeze and thaw individual token accounts | Initializer |
+
+```mermaid
+graph TD
+    AUTH["Authority (master)<br/>Add/remove/update minters<br/>Update roles · Transfer authority"]
+    AUTH --> MINTER["Minter<br/>mint_tokens (quota-enforced)"]
+    AUTH --> BURNER["Burner<br/>burn_tokens"]
+    AUTH --> PAUSER["Pauser<br/>pause / unpause"]
+    AUTH --> FREEZER["Freezer<br/>freeze / thaw accounts"]
+```
 
 At initialization, the authority, pauser, burner, and freezer are all set to the initializing wallet. The authority should immediately assign these roles to separate keys for production deployments.
 
@@ -328,6 +354,8 @@ No external wallet holds direct mint or freeze authority. The Config PDA is the 
 - **No seizure capability.** SSS-1 does not enable a permanent delegate. Tokens cannot be forcibly transferred out of an account. If seizure is required, use SSS-2.
 - **No allowlist model.** Token accounts are active immediately upon creation. There is no mechanism to require explicit approval before an account can send or receive tokens.
 - **Pause does not stop transfers.** The pause flag only affects `sss-core` instructions. Token-2022 `transfer` and `transfer_checked` instructions continue to work for non-frozen accounts even when the stablecoin is paused.
+
+For privacy-preserving stablecoins with encrypted balances, see [SSS-3](./SSS-3.md) (experimental).
 
 For use cases requiring proactive compliance enforcement, transfer-level blacklisting, seizure, or an allowlist model, see [SSS-2](./SSS-2.md).
 

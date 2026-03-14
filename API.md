@@ -1097,3 +1097,13 @@ docker inspect --format='{{.State.Health.Status}}' sss-backend
 ## Rate Limiting
 
 The backend does not implement built-in rate limiting. If you are exposing the API publicly, place it behind a reverse proxy (e.g., nginx, Caddy, or a cloud load balancer) with rate limiting configured.
+
+---
+
+## SSS-3 Notes
+
+The backend API does not expose SSS-3 (confidential transfer) endpoints. Confidential transfer operations — including mint creation with `ConfidentialTransferMint` extension, account approval, ElGamal key setup, deposit, and transfer — are performed client-side using the `@stbr/sss-confidential` module.
+
+The event listener will index SSS-3 token events (mints, burns, freezes) that flow through `sss-core`, but confidential transfer-specific operations (which go directly through Token-2022's confidential transfer instructions) are not currently indexed.
+
+See [SSS-3.md](./SSS-3.md) for the confidential transfer specification and client-side API.

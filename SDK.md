@@ -7,6 +7,7 @@ This document covers the three TypeScript packages that compose the Solana Stabl
 | `@stbr/sss-token` | `sdk/core/` | Core SDK for SSS-1 and SSS-2 stablecoin operations |
 | `@stbr/sss-oracle` | `sdk/oracle/` | On-chain oracle integration (Switchboard price feeds) |
 | `@stbr/sss-oracle-feeds` | `modules/oracle/` | Off-chain price feeds and depeg monitoring |
+| `@stbr/sss-confidential` | `modules/confidential/` | SSS-3 confidential transfer mint creation and account management (experimental) |
 
 ---
 
@@ -35,6 +36,10 @@ This document covers the three TypeScript packages that compose the Solana Stabl
    - [Known Feeds](#known-feeds)
    - [OraclePriceFeed](#oraclepricefeed)
    - [DepegMonitor](#depegmonitor)
+4. [Confidential Module (@stbr/sss-confidential)](#confidential-module)
+   - [Mint Creation](#confidential-mint-creation)
+   - [Account Management](#confidential-account-management)
+   - [Constants](#sss-3-constants)
 
 ---
 
@@ -80,6 +85,22 @@ SSS-1 plus permanent delegate, transfer hook, and blacklist enforcement. Suitabl
   enablePermanentDelegate: true,
   enableTransferHook: true,
   defaultAccountFrozen: false,
+}
+```
+
+**`Presets.SSS_3` -- Private Stablecoin (Experimental)**
+
+SSS-1 plus confidential transfers and scoped allowlists. For privacy-preserving stablecoins with encrypted balances and transfer amounts. Transfer hooks are incompatible with confidential transfers, so SSS-3 uses an approval-authority allowlist pattern instead.
+
+> **Note:** The ZK ElGamal Proof Program is currently disabled on devnet/mainnet. Use a local test validator for testing.
+
+```typescript
+{
+  enableMetadata: true,
+  enablePermanentDelegate: false,
+  enableTransferHook: false,
+  defaultAccountFrozen: false,
+  enableConfidentialTransfer: true,
 }
 ```
 
@@ -493,6 +514,18 @@ interface BlacklistEntry {
 }
 ```
 
+**`PresetConfig`** -- Preset configuration for stablecoin creation.
+
+```typescript
+interface PresetConfig {
+  enableMetadata: boolean;
+  enablePermanentDelegate: boolean;
+  enableTransferHook: boolean;
+  defaultAccountFrozen: boolean;
+  enableConfidentialTransfer?: boolean;
+}
+```
+
 ---
 
 ## Oracle SDK
@@ -887,6 +920,127 @@ interface DepegEvent {
 | `info` | >= 0.5% | Minor deviation, worth noting |
 | `warning` | >= 1.0% | Significant deviation, may require action |
 | `critical` | >= 2.0% | Severe depeg, immediate attention needed |
+
+---
+
+## Confidential Module
+
+**Package:** `@stbr/sss-confidential`
+**Status:** Experimental
+**Dependencies:** `@solana/web3.js`, `@solana/spl-token`
+
+The confidential module provides client-side tooling for creating SSS-3 private stablecoins with Token-2022's `ConfidentialTransferMint` extension. Transfer amounts and balances are encrypted on-chain using ElGamal encryption while addresses remain public.
+
+> **Important:** The ZK ElGamal Proof Program required for confidential transfers has been disabled on devnet and mainnet since June 2025. SSS-3 is a proof-of-concept. Use `solana-test-validator` for local testing.
+
+### Confidential Mint Creation
+
+```typescript
+import { ConfidentialMint } from "@stbr/sss-confidential";
+
+const manager = new ConfidentialMint(connection, payer);
+const { mint, signature } = await manager.createMint({
+  authority: payer.publicKey,
+  decimals: 6,
+  name: "Private BRL",
+  symbol: "pBRL",
+  uri: "",
+  autoApproveNewAccounts: false,  // allowlist model
+  auditorElGamalPubkey: auditorKey, // 32-byte ElGamal pubkey
+});
+```
+
+**`createMint` parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `authority` | `PublicKey` | Yes | Mint and confidential transfer authority |
+| `decimals` | `number` | Yes | Token decimal places |
+| `name` | `string` | Yes | Token name |
+| `symbol` | `string` | Yes | Token symbol |
+| `uri` | `string` | No | Metadata URI |
+| `autoApproveNewAccounts` | `boolean` | No | If `false`, accounts must be approved before confidential transfers (default: `false`) |
+| `auditorElGamalPubkey` | `Uint8Array` | No | 32-byte ElGamal public key for auditor. Enables amount decryption by auditor. |
+
+### Confidential Account Management
+
+```typescript
+import { ConfidentialAccountManager } from "@stbr/sss-confidential";
+
+const accounts = new ConfidentialAccountManager(connection, mint);
+
+// Check account status
+const status = await accounts.getAccountStatus(userWallet);
+// { exists: true, configured: false, approved: false, publicBalance: "0" }
+
+// Authority approves account (allowlist gate)
+await accounts.approveAccount(tokenAccount, authority);
+
+// Deposit public balance to confidential balance (no ZK proof required)
+await accounts.deposit(owner, BigInt(1_000_000), 6); // 1.0 tokens
+```
+
+**Account lifecycle:**
+
+```mermaid
+stateDiagram-v2
+    [*] --> Created: Create token account
+    Created --> Configured: Configure CT extension<br/>(set ElGamal keys)
+    Configured --> Approved: Authority approves<br/>(allowlist gate)
+    Approved --> Active: Deposit funds
+    Active --> Active: Confidential transfers
+    Active --> Approved: Withdraw funds
+    Approved --> Configured: Authority revokes
+```
+
+**`getAccountStatus` return value:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `exists` | `boolean` | Whether the token account exists |
+| `configured` | `boolean` | Whether the CT extension is configured with ElGamal keys |
+| `approved` | `boolean` | Whether the authority has approved the account |
+| `publicBalance` | `string` | The public (non-confidential) token balance |
+
+### SSS-3 Constants
+
+```typescript
+import { SSS3_CONSTRAINTS, SSS3_EXTENSION_CONFIG } from "@stbr/sss-confidential";
+
+// Extension configuration
+SSS3_EXTENSION_CONFIG
+// { autoApproveNewAccounts: false, auditorElGamalPubkey: null }
+
+// Constraints
+SSS3_CONSTRAINTS
+// { maxNameLength: 32, maxSymbolLength: 10, maxUriLength: 200 }
+```
+
+### Privacy Scope
+
+| Public | Private |
+|--------|---------|
+| Sender address | Transfer amount |
+| Recipient address | Account balance |
+| Transaction timestamp | |
+| That a confidential transfer occurred | |
+
+### Confidential Transfer Lifecycle
+
+Each confidential transfer requires **4-5 separate transactions** due to Solana's transaction size limits:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Proofs as Proof Accounts
+    participant Token2022 as Token-2022
+
+    User->>Proofs: TX 1: Create proof context accounts<br/>(equality, ciphertext validity, range)
+    User->>Proofs: TX 2: Verify range proof
+    User->>Proofs: TX 3: Verify equality + ciphertext proofs
+    User->>Token2022: TX 4: Execute confidential transfer<br/>(references proof accounts)
+    User->>Proofs: TX 5: Close proof accounts<br/>(reclaim rent)
+```
 
 ---
 
