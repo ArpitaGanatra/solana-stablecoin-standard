@@ -18,7 +18,6 @@ Built by [Superteam Brazil](https://superteam.fun).
 - [Standards Comparison](#standards-comparison)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
-- [CLI Reference](#cli-reference)
 - [SDK Reference](#sdk-reference)
 - [Backend Services](#backend-services)
 - [Bonus Features](#bonus-features)
@@ -48,60 +47,87 @@ The Solana Stablecoin Standard (SSS) provides everything needed to launch, manag
 
 ## Architecture
 
-```mermaid
-graph TD
-    subgraph "Layer 3 — Standard Presets"
-        SSS1["SSS-1<br/>Minimal Stablecoin"]
-        SSS2["SSS-2<br/>Compliant Stablecoin"]
-        SSS3["SSS-3<br/>Private Stablecoin ⚗️"]
-    end
+```d2
+direction: down
 
-    subgraph "Layer 2 — Modules"
-        COMP["Compliance Module<br/>Transfer Hook · Blacklist · Permanent Delegate"]
-        ORACLE["Oracle Module<br/>Switchboard Feeds · Non-USD Pegs"]
-        CONF["Confidential Module<br/>Encrypted Balances · Allowlists"]
-    end
+Layer 3 — Standard Presets: {
+  SSS-1: "SSS-1\nMinimal Stablecoin" {
+    style.fill: "#e8f5e9"
+  }
+  SSS-2: "SSS-2\nCompliant Stablecoin" {
+    style.fill: "#e3f2fd"
+  }
+  SSS-3: "SSS-3\nPrivate Stablecoin" {
+    style.fill: "#fce4ec"
+  }
+}
 
-    subgraph "Layer 1 — Base SDK"
-        BASE["Token Creation (Token-2022)<br/>Mint · Burn · Freeze · Pause · Roles"]
-    end
+Layer 2 — Modules: {
+  Compliance: "Compliance Module\nTransfer Hook · Blacklist · Permanent Delegate"
+  Oracle: "Oracle Module\nSwitchboard Feeds · Non-USD Pegs"
+  Confidential: "Confidential Module\nEncrypted Balances · Allowlists"
+}
 
-    subgraph "On-Chain Programs"
-        CORE["sss-core<br/>4H5fRECQ...MAvb"]
-        HOOK["sss-transfer-hook<br/>2VymphXY...DTLH9"]
-        ORC["sss-oracle<br/>GnEKCqWB...PH"]
-    end
+Layer 1 — Base SDK: {
+  Base: "Token Creation (Token-2022)\nMint · Burn · Freeze · Pause · Roles"
+}
 
-    SOL["Solana Runtime · Token-2022"]
+On-Chain Programs: {
+  sss-core: "sss-core\n4H5fRECQ...MAvb"
+  sss-transfer-hook: "sss-transfer-hook\n2VymphXY...DTLH9"
+  sss-oracle: "sss-oracle\nGnEKCqWB...PH"
+}
 
-    SSS1 --> BASE
-    SSS2 --> COMP
-    SSS2 --> BASE
-    SSS3 --> CONF
-    SSS3 --> BASE
-    COMP --> CORE
-    COMP --> HOOK
-    ORACLE --> ORC
-    CONF --> CORE
-    BASE --> CORE
-    CORE --> SOL
-    HOOK --> SOL
-    ORC --> SOL
+Solana: "Solana Runtime · Token-2022" {
+  style.fill: "#fff3e0"
+}
+
+Layer 3 — Standard Presets.SSS-1 -> Layer 1 — Base SDK.Base
+Layer 3 — Standard Presets.SSS-2 -> Layer 2 — Modules.Compliance
+Layer 3 — Standard Presets.SSS-2 -> Layer 1 — Base SDK.Base
+Layer 3 — Standard Presets.SSS-3 -> Layer 2 — Modules.Confidential
+Layer 3 — Standard Presets.SSS-3 -> Layer 1 — Base SDK.Base
+Layer 2 — Modules.Compliance -> On-Chain Programs.sss-core
+Layer 2 — Modules.Compliance -> On-Chain Programs.sss-transfer-hook
+Layer 2 — Modules.Oracle -> On-Chain Programs.sss-oracle
+Layer 2 — Modules.Confidential -> On-Chain Programs.sss-core
+Layer 1 — Base SDK.Base -> On-Chain Programs.sss-core
+On-Chain Programs.sss-core -> Solana
+On-Chain Programs.sss-transfer-hook -> Solana
+On-Chain Programs.sss-oracle -> Solana
 ```
 
 ### Component Map
 
-```mermaid
-graph LR
-    CLI["sss-token CLI"] --> SDK["@stbr/sss-token SDK"]
-    FE["Frontend<br/>Next.js"] --> SDK
-    TUI["TUI<br/>React Ink"] --> SDK
-    SDK --> PROG["On-Chain Programs"]
-    BE["Backend<br/>Express.js"] --> RPC["Solana RPC"]
-    BE --> DB["SQLite"]
-    BE --> WH["Webhooks"]
-    ORACLE_MOD["Oracle Module"] --> SW["Switchboard Feeds"]
-    ORACLE_MOD --> ORC_PROG["sss-oracle Program"]
+```d2
+direction: right
+
+CLI: "sss-token CLI"
+Frontend: "Frontend\nNext.js"
+TUI: "TUI\nReact Ink"
+SDK: "@stbr/sss-token SDK" {
+  style.fill: "#e3f2fd"
+}
+Programs: "On-Chain Programs" {
+  style.fill: "#fff3e0"
+}
+Backend: "Backend\nExpress.js"
+RPC: "Solana RPC"
+DB: "SQLite"
+Webhooks: "Webhooks"
+Oracle Module: "Oracle Module"
+Switchboard: "Switchboard Feeds"
+sss-oracle: "sss-oracle Program"
+
+CLI -> SDK
+Frontend -> SDK
+TUI -> SDK
+SDK -> Programs
+Backend -> RPC
+Backend -> DB
+Backend -> Webhooks
+Oracle Module -> Switchboard
+Oracle Module -> sss-oracle
 ```
 
 ---
@@ -155,22 +181,58 @@ anchor test
 
 ### Create a Stablecoin (CLI)
 
-```bash
-# Initialize an SSS-1 stablecoin
-sss-token init --preset sss-1
+The `sss-token` CLI provides complete token management from the command line.
 
-# Initialize an SSS-2 compliant stablecoin
-sss-token init --preset sss-2
+#### Token Lifecycle
 
-# Initialize an SSS-3 private stablecoin (experimental)
-sss-token init --preset sss-3
+| Command                            | Description                        |
+|------------------------------------|------------------------------------|
+| `sss-token init --preset sss-1`   | Create a minimal stablecoin        |
+| `sss-token init --preset sss-2`   | Create a compliant stablecoin      |
+| `sss-token init --preset sss-3`   | Create a private stablecoin (experimental) |
+| `sss-token mint <recipient> <amount>` | Mint tokens to a recipient      |
+| `sss-token burn <amount>`          | Burn tokens from your account      |
+| `sss-token freeze <address>`       | Freeze a token account             |
+| `sss-token thaw <address>`         | Thaw a frozen token account        |
+| `sss-token pause`                  | Pause all token operations         |
+| `sss-token unpause`               | Resume token operations            |
 
-# Mint tokens
-sss-token mint <recipient> <amount>
+#### Compliance (SSS-2)
 
-# Check status
-sss-token status
-```
+| Command                                    | Description                          |
+|--------------------------------------------|--------------------------------------|
+| `sss-token blacklist add <address>`        | Add an address to the blacklist      |
+| `sss-token blacklist remove <address>`     | Remove an address from the blacklist |
+| `sss-token seize <address> <amount>`       | Seize tokens via permanent delegate  |
+
+#### Management
+
+| Command                               | Description                           |
+|---------------------------------------|---------------------------------------|
+| `sss-token minters list`             | List all registered minters           |
+| `sss-token minters add`              | Add a new minter with cap             |
+| `sss-token minters remove`           | Remove a minter                       |
+| `sss-token roles list`               | List current role assignments         |
+| `sss-token roles update`             | Update role assignments               |
+| `sss-token holders`                   | List all token holders                |
+| `sss-token status`                    | Show token configuration and state    |
+| `sss-token supply`                    | Show current token supply             |
+| `sss-token audit-log`                | View the on-chain audit log           |
+
+#### Oracle
+
+| Command                               | Description                           |
+|---------------------------------------|---------------------------------------|
+| `sss-token oracle init`              | Initialize oracle configuration       |
+| `sss-token oracle status`            | Show oracle feed status               |
+| `sss-token oracle mint`              | Mint tokens using oracle price feed   |
+| `sss-token oracle redeem`            | Redeem tokens using oracle price feed |
+
+#### Interactive
+
+| Command                               | Description                           |
+|---------------------------------------|---------------------------------------|
+| `sss-token tui`                       | Launch the terminal UI dashboard      |
 
 ### Create a Stablecoin (SDK)
 
@@ -283,63 +345,6 @@ solana-stablecoin-standard/
 |-- Cargo.toml                       # Rust workspace
 +-- package.json                     # Root package (setup, build, lint)
 ```
-
----
-
-## CLI Reference
-
-The `sss-token` CLI provides complete token management from the command line.
-
-### Token Lifecycle
-
-| Command                            | Description                        |
-|------------------------------------|------------------------------------|
-| `sss-token init --preset sss-1`   | Create a minimal stablecoin        |
-| `sss-token init --preset sss-2`   | Create a compliant stablecoin      |
-| `sss-token init --preset sss-3`   | Create a private stablecoin (experimental) |
-| `sss-token mint <recipient> <amount>` | Mint tokens to a recipient      |
-| `sss-token burn <amount>`          | Burn tokens from your account      |
-| `sss-token freeze <address>`       | Freeze a token account             |
-| `sss-token thaw <address>`         | Thaw a frozen token account        |
-| `sss-token pause`                  | Pause all token operations         |
-| `sss-token unpause`               | Resume token operations            |
-
-### Compliance (SSS-2)
-
-| Command                                    | Description                          |
-|--------------------------------------------|--------------------------------------|
-| `sss-token blacklist add <address>`        | Add an address to the blacklist      |
-| `sss-token blacklist remove <address>`     | Remove an address from the blacklist |
-| `sss-token seize <address> <amount>`       | Seize tokens via permanent delegate  |
-
-### Management
-
-| Command                               | Description                           |
-|---------------------------------------|---------------------------------------|
-| `sss-token minters list`             | List all registered minters           |
-| `sss-token minters add`              | Add a new minter with cap             |
-| `sss-token minters remove`           | Remove a minter                       |
-| `sss-token roles list`               | List current role assignments         |
-| `sss-token roles update`             | Update role assignments               |
-| `sss-token holders`                   | List all token holders                |
-| `sss-token status`                    | Show token configuration and state    |
-| `sss-token supply`                    | Show current token supply             |
-| `sss-token audit-log`                | View the on-chain audit log           |
-
-### Oracle
-
-| Command                               | Description                           |
-|---------------------------------------|---------------------------------------|
-| `sss-token oracle init`              | Initialize oracle configuration       |
-| `sss-token oracle status`            | Show oracle feed status               |
-| `sss-token oracle mint`              | Mint tokens using oracle price feed   |
-| `sss-token oracle redeem`            | Redeem tokens using oracle price feed |
-
-### Interactive
-
-| Command                               | Description                           |
-|---------------------------------------|---------------------------------------|
-| `sss-token tui`                       | Launch the terminal UI dashboard      |
 
 ---
 
